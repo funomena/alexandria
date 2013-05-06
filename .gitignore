@@ -1,0 +1,6 @@
+venv
+*.pyc
+*.sublime-project
+*.sublime-workspace
+*.DS_Store
+instance

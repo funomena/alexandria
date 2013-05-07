@@ -9,7 +9,7 @@ class BuildResource(ModelResource):
 		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
 
 		q_list = None
-		all_meta_cats = MetaDataCategory.objects.all()
+		all_meta_cats = MetaDataCategory.objects.prefetch_related('values').filter(slug__in = request.GET)
 		for meta_cat in all_meta_cats:
 			meta_value = request.GET.get(meta_cat.slug, None)
 			if meta_value:
@@ -41,6 +41,14 @@ class MetaDataCategoryResource(ModelResource):
 
 
 class MetaDataResource(ModelResource):
+	def apply_filters(self, request, applicable_filters):
+		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
+		if request.GET.get('distinct', None) is None:
+			return base_list.distinct('value')
+		else:
+			return base_list
+
+
 	category = fields.ForeignKey(MetaDataCategoryResource, 'category')
 	class Meta:
 		queryset = MetaData.objects.all()

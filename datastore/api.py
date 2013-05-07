@@ -8,24 +8,22 @@ class BuildResource(ModelResource):
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
 
-		q_list = []
+		q_list = None
 		all_meta_cats = MetaDataCategory.objects.all()
 		for meta_cat in all_meta_cats:
 			meta_value = request.GET.get(meta_cat.slug, None)
 			if meta_value:
 				q_subset = 	Q(metadata__category__slug = meta_cat.slug, metadata__value = meta_value)
-						
-				q_list.append(base_list.filter(q_subset).distinct())
+				
+				if q_list is None:
+					q_list = base_list.filter(q_subset).distinct()
+				else:
+					q_list &= base_list.filter(q_subset).distinct()
 
-		q_string = ""
-		for i in range(0, len(q_list) - 1):
-			q_string += "q_list[" + str(i) + "] & "
-		q_string += "q_list[" + str(len(q_list) - 1) + "]"
-
-		if len(q_list) == 0:
+		if q_list is None:
 			return base_list
 		else:
-			return eval(q_string)
+			return q_list
 
 
 	class Meta:

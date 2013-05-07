@@ -35,6 +35,9 @@ class MetaDataCategoryResource(ModelResource):
 	class Meta:
 		queryset = MetaDataCategory.objects.all()
 		resource_name = 'metadatacategory'
+		filtering = {
+			'slug': ALL
+		}
 
 
 class MetaDataResource(ModelResource):

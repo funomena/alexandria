@@ -4,7 +4,12 @@ from datastore.models import *
 from django.db.models import Q
 
 
-class BuildResource(ModelResource):
+class EmuBabyResource(ModelResource):
+	def determine_format(self, request):
+		return 'application/json'
+
+
+class BuildResource(EmuBabyResource):
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
 
@@ -31,7 +36,7 @@ class BuildResource(ModelResource):
 		resource_name = 'build'
 
 
-class MetaDataCategoryResource(ModelResource):
+class MetaDataCategoryResource(EmuBabyResource):
 	class Meta:
 		queryset = MetaDataCategory.objects.all()
 		resource_name = 'metadatacategory'
@@ -40,7 +45,7 @@ class MetaDataCategoryResource(ModelResource):
 		}
 
 
-class MetaDataResource(ModelResource):
+class MetaDataResource(EmuBabyResource):
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
 		if request.GET.get('distinct', None):
@@ -58,13 +63,13 @@ class MetaDataResource(ModelResource):
 		}
 
 
-class ArtifactTypeResource(ModelResource):
+class ArtifactTypeResource(EmuBabyResource):
 	class Meta:
 		queryset = ArtifactType.objects.all()
 		resource_name = 'artifacttype'
 
 
-class ArtifactResource(ModelResource):
+class ArtifactResource(EmuBabyResource):
 	a_type = fields.ForeignKey(ArtifactTypeResource, 'a_type')
 	class Meta:
 		queryset = Artifact.objects.all()

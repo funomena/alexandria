@@ -6,7 +6,7 @@ class Build(models.Model):
 	name = models.CharField(max_length=128)
 
 	def __unicode__(self):
-		return name
+		return self.name
 
 
 class MetaDataCategory(models.Model):
@@ -15,7 +15,7 @@ class MetaDataCategory(models.Model):
 	is_extra_data = models.BooleanField()
 
 	def __unicode__(self):
-		return unicode(friendly_name)
+		return unicode(self.friendly_name)
 
 	def save(self, *args, **kwargs):
 		if not self.slug:
@@ -25,12 +25,12 @@ class MetaDataCategory(models.Model):
 
 
 class MetaData(models.Model):
-	category = models.ForeignKey(MetaDataCategory)
-	build = models.ForeignKey(Build)
+	category = models.ForeignKey(MetaDataCategory, related_name='values')
+	build = models.ForeignKey(Build, related_name='metadata')
 	value = models.CharField(max_length=128)
 
 	def __unicode__(self):
-		return u"%s: %s (Build %s)" % (category.friendly_name, value, build.id)
+		return u"%s: %s (Build %s)" % (self.category.friendly_name, self.value, self.build.id)
 
 
 class ArtifactType(models.Model):
@@ -51,9 +51,9 @@ class ArtifactType(models.Model):
 
 
 class Artifact(models.Model):
-	a_type = models.ForeignKey(ArtifactType)
-	build = models.ForeignKey(Build)
+	a_type = models.ForeignKey(ArtifactType, related_name='instances')
+	build = models.ForeignKey(Build, related_name='artifacts')
 	download_url = models.CharField(max_length=128)
 
 	def __unicode__(self):
-		return u"%s (Build %s)" % (a_type.friendly_name, build.id)
+		return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)

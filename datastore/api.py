@@ -43,7 +43,7 @@ class MetaDataCategoryResource(ModelResource):
 class MetaDataResource(ModelResource):
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
-		if request.GET.get('distinct', None) is None:
+		if request.GET.get('distinct', None):
 			return base_list.distinct('value')
 		else:
 			return base_list

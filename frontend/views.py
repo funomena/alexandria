@@ -2,6 +2,7 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from emubaby.settings import ORG_NAME
 from datastore.models import *
+from datastore.utils import get_build_query_set
 
 
 @login_required
@@ -32,7 +33,14 @@ def build_page(request, build_id):
 
 	metadata_set = MetaData.objects.filter(category__is_extra_data=False, build_id=build_id)
 	extra_data_set = MetaData.objects.filter(category__is_extra_data=True, build_id=build_id)
-	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': metadata_set, 'extra_data_set': extra_data_set})
+	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': dict(metadata_set), 'extra_data_set': extra_data_set})
+
+
+@login_required
+def build_list_page(request):
+	params = request.GET
+	builds = get_build_query_set(params, Build.objects.all())
+	return TemplateResponse(request, 'build_list.html', {'builds': builds, 'metadata_set': params})
 
 
 @login_required

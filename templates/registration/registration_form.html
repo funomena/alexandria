@@ -1,0 +1,21 @@
+{% extends "default_body.html" %}
+
+{% block pagecontent %}
+<div class="row">
+	<div class="offset2 span8">
+		<h2>Register</h2>
+		<form method="POST" action="." class="form-horizontal well">
+			{% csrf_token %}
+			<fieldset>
+			{% for field in form %}
+				<label>{{field.label}}</label>
+					{{ field }}
+			{% endfor %}
+				<div class="form-actions">
+					<button type="submit" class="btn">Submit</button>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+</div>
+{% endblock %}

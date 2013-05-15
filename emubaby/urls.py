@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.defaults import *
 from tastypie.api import Api
 from datastore.api import *
+import frontend.views
 
 api = Api(api_name='v1')
 api.register(BuildResource())
@@ -15,7 +16,9 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+	url(r'^$', frontend.views.index, name='index'),
     (r'^api/', include(api.urls)),
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),
+	(r'accounts/', include('registration.backends.default.urls')),
 )

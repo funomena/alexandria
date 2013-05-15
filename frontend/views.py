@@ -21,10 +21,17 @@ def latest(request):
 @login_required
 def build_page(request, build_id):
 	build = Build.objects.get(id=build_id)
-	installers = Artifact.objects.get(a_type__is_installer=True, build__id=build_id)
-	artifacts = Artifact.objects.get(a_type__is_installer=False, build__id=build_id)
-	metadata_set = MetaData.objects.get(category__is_extra_data=False, build_id=build_id)
-	extra_data_set = MetaData.objects.get(category__is_extra_data=True, build_id=build_id)
+
+	installers = Artifact.objects.filter(	a_type__installer_type__in=[ArtifactType.INSTALLER_TYPE_NORMAL,
+																	ArtifactType.INSTALLER_TYPE_IPHONE,
+																	ArtifactType.INSTALLER_TYPE_ANDROID],
+											build__id=build_id)
+
+	artifacts = Artifact.objects.filter(	a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE,
+											build__id=build_id)
+
+	metadata_set = MetaData.objects.filter(category__is_extra_data=False, build_id=build_id)
+	extra_data_set = MetaData.objects.filter(category__is_extra_data=True, build_id=build_id)
 	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': metadata_set, 'extra_data_set': extra_data_set})
 
 

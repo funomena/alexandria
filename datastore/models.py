@@ -36,14 +36,25 @@ class MetaData(models.Model):
 
 
 class ArtifactType(models.Model):
+	INSTALLER_TYPE_NONE = "NOT INSTALLER"
+	INSTALLER_TYPE_NORMAL = "NORMAL INSTALLER"
+	INSTALLER_TYPE_IPHONE = "IPHONE INSTALLER"
+	INSTALLER_TYPE_ANDROID = "ANDROID INSTALLER"
+
+	INSTALLER_TYPES = (
+		(INSTALLER_TYPE_NONE, 'Not Installer'),
+		(INSTALLER_TYPE_NORMAL, 'Normal Installer'),
+		(INSTALLER_TYPE_IPHONE, 'iPhone Installer'),
+		(INSTALLER_TYPE_ANDROID, 'Android Installer'),
+		)
+
 	slug = models.SlugField()
 	friendly_name = models.CharField(max_length=64)
-	is_installer = models.BooleanField()
+	installer_type = models.CharField(max_length=32, choices=INSTALLER_TYPES, default=INSTALLER_TYPE_NONE)
 	extension = models.CharField(max_length=16)
-	download_decorator = models.CharField(max_length=128)
 
 	def __unicode__(self):
-		return unicode(friendly_name)
+		return unicode(self.friendly_name)
 
 	def save(self, *args, **kwargs):
 		if not self.slug:

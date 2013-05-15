@@ -1,0 +1,38 @@
+{% extends "default_body.html" %}
+
+{% block pagecontent %}
+<div class="row">
+	<div class="span4">
+		<p>Use these filters to narrow down the list of builds by metadata, then press the button below</p>
+		<a href="#" id="jumpToFilters" class="btn btn-block btn-success">View Builds</a>
+	</div>
+	<div class="span8">
+		{% for category in categories %}
+		<h4>{{category.friendly_name}}</h4>
+		<select id="{{category.slug}}">
+			<option selected>--</option>
+			{% for v in category.values.all %}
+			<option>{{v.value}}</option>
+			{% endfor %}
+		</select>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}
+
+{% block pagescripts %}
+<script type="text/javascript">
+$("#jumpToFilters").click( function(){
+	var queryArgs = [];
+	$('select').each(function(){
+		var cat = this.id;
+		var val = this.options[this.selectedIndex].label;
+		if( val != "--" ){
+			queryArgs.push(cat + "=" + val);
+		}
+	});
+	var filterPage = "/builds/?" + queryArgs.join("&");
+	window.location.href = filterPage;
+});
+</script>
+{% endblock %}

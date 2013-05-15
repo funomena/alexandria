@@ -4,7 +4,6 @@ from django.db.models import Q
 
 def get_build_query_set(metadata, base_list):
 	q_list = None
-	print metadata
 	all_meta_cats = MetaDataCategory.objects.prefetch_related('values').filter(slug__in = metadata.keys())
 	print len(all_meta_cats)
 	for meta_cat in all_meta_cats:

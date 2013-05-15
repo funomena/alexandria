@@ -1,17 +1,41 @@
 {% extends "default_body.html" %}
 
 {% block pagecontent %}
-<h2 class="text-center">{{org_name}} EmuBaby</h2>
 <div class="row">
-	<h3 class="text-center">Latest Build</h3>
-	<div class="span8 offset2">
-		<a href="/build/{{latest_build.id}}" class="btn btn-block btn-large btn-primary"><i class="icon-bookmark icon-white"></i>{{latest_build.name}}</a>
+	<div class="span12">
+		<h3>Welcome {{user.username}}!</h3>
 	</div>
 </div>
 <div class="row">
-	<h3 class="text-center">Latest Starred Build</h3>
-	<div class="span8 offset2">
-		<a href="/build/{{latest_starred.id}}" class="btn btn-block btn-large btn-primary"><i class="icon-star icon-white"></i>{{latest_starred.name}}</a>
+	<div class="span6">
+		<h4>You are browsing {{org_name}}'s EmuBaby build archive.</h4>
+	</div>
+	<div class="span6">
+		<h4>This archive contains {{num_builds}} builds, of which you have access to {{accessible_builds}}.</h4>
+	</div>
+</div>
+<div class="row">
+	<div class="span12">
+		<h3 class="text-center">Get Started</h3> 
+	</div>
+</div>
+<div class="row">
+	<div class="span3">
+		<a href="/latest" class="btn btn-large btn-block btn-primary">View Latest Builds</a>
+	</div>
+	<div class="span3">
+		<a href="/filter" class="btn btn-large btn-block btn-info">Search For Builds</a>
+	</div>
+	<div class="span3">
+		<a href="#" data-toggle="collapse" data-target="#buildJump" class="btn btn-large btn-block btn-success">Jump To A Build</a>
+		<div id="buildJump" class="collapse">
+			<form action="javascript:func(window.location.href='/build/' + document.getElementById('jumpField').value)">
+				<input class="input-block-level" id="jumpField" type="text">
+			</form>
+		</div>
+	</div>
+	<div class="span3">
+		<a href="/admin" class="btn btn-large btn-block btn-inverse">Admin</a>
 	</div>
 </div>
 {% endblock %}

@@ -165,3 +165,5 @@ ACCOUNT_ACTIVATION_DAYS = 7
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
+ORG_NAME = "MindSnacks"
+

@@ -1,9 +1,17 @@
-<html>
-	<head>
-		<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-	</head>
-	{% block body %}{% endblock %}
-	<script src="/static/js/jquery-2.0.0.min.js"></script>
-	<script src="/static/js/bootstrap.js"></script>
+{% extends "default_body.html" %}
 
-</html>
+{% block pagecontent %}
+<h2 class="text-center">{{org_name}} EmuBaby</h2>
+<div class="row">
+	<h3 class="text-center">Latest Build</h3>
+	<div class="span8 offset2">
+		<a href="/build/{{latest_build.p_id}}" class="btn btn-block btn-large btn-primary"><i class="icon-bookmark icon-white"></i>{{latest_build.name}}</a>
+	</div>
+</div>
+<div class="row">
+	<h3 class="text-center">Latest Starred Build</h3>
+	<div class="span8 offset2">
+		<a href="/build/{{latest_starred_build.p_id}}" class="btn btn-block btn-large btn-primary"><i class="icon-star icon-white"></i>{{latest_starred_build.name}}</a>
+	</div>
+</div>
+{% endblock %}

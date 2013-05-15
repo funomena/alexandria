@@ -1,0 +1,20 @@
+{% extends "default_body.html" %}
+
+{% block pagecontent %}
+<div class="row">
+	<h2 class="text-center">User Profile</h2>
+	<div class="span6 offset3 well">
+		<dl class="dl-horizontal">
+			<dt>Username</dt>
+			<dd>{{user.username}}</dd>
+			<dt>Email Address</dt>
+			<dd>{{user.emailaddress}}</dd>
+			<dt>First Name</dt>
+			<dd>{{user.firstname}}</dd>
+			<dt>Last Name</dt>
+			<dd>{{user.lastname}}</dd>
+		</dl>
+	</div>
+</div>
+
+{% endblock %}

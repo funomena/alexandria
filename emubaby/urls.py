@@ -18,6 +18,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
 	url(r'^$', frontend.views.index, name='index'),
 	url(r'^latest/', frontend.views.latest, name='latest'),
+	url(r'^build/(?P<build_id>\d*)/', frontend.views.build_page, name='build'),
     (r'^api/', include(api.urls)),
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),

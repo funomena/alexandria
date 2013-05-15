@@ -6,8 +6,9 @@ from datastore.models import Build
 
 @login_required
 def index(request):
-	latest_build = Build.objects.latest('pk')
-	return TemplateResponse(request, 'index.html', {'org_name': ORG_NAME, 'latest_build': latest_build})
+	latest_build = Build.objects.latest('created')
+	latest_starred = Build.objects.filter(starred=True).latest('created')
+	return TemplateResponse(request, 'index.html', {'org_name': ORG_NAME, 'latest_build': latest_build, 'latest_starred': latest_starred})
 
 
 @login_required

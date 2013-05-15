@@ -4,6 +4,8 @@ from django.template.defaultfilters import slugify
 
 class Build(models.Model):
 	name = models.CharField(max_length=128)
+	created = models.DateTimeField(auto_now_add=True, default="1970-01-01 00:01")
+	starred = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.name

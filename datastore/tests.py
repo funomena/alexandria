@@ -3,6 +3,7 @@ from django.test import TestCase
 
 
 class BuildTest(TestCase):
+	fixtures = ['test_data']
 
 	def test_build_unicode_is_build_name(self):
 		name = "TestName"
@@ -11,27 +12,23 @@ class BuildTest(TestCase):
 
 
 	def test_metadata_category_unicode_is_name(self):
-		name = "TestCategory"
-		c = MetaDataCategory.objects.create(friendly_name=name)
-		self.assertEqual(name, unicode(c))
+		c = MetaDataCategory.objects.get(pk=1)
+		self.assertEqual("Test Category", unicode(c))
 
 
 	def test_metadata_category_auto_slugify(self):
-		name = "Test Category"
-		c = MetaDataCategory.objects.create(friendly_name=name)
+		c = MetaDataCategory.objects.get(pk=1)
 		self.assertEqual(c.slug, "test-category")
 
 
 	def test_artifact_type_unicode_is_name(self):
-		name = "TestType"
-		c = ArtifactType.objects.create(friendly_name=name)
-		self.assertEqual(name, unicode(c))
+		t = ArtifactType.objects.get(pk=1)
+		self.assertEqual("Test Type", unicode(t))
 
 
 	def test_artifact_type_auto_slugify(self):
-		name = "Test Type"
-		c = ArtifactType.objects.create(friendly_name=name)
-		self.assertEqual(c.slug, "test-type")
+		t = ArtifactType.objects.get(pk=1)
+		self.assertEqual(t.slug, "test-type")
 
 
 	def test_metadata_unicode_contains_build_id(self):

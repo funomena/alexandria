@@ -1,0 +1,23 @@
+[
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Category"
+		}
+	},
+	{
+		"model": "datastore.ArtifactType",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Type"
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 1,
+		"fields":{
+			"name": "TestBuild1"
+		}
+	}
+]

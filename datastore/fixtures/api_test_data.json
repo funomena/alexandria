@@ -1,0 +1,79 @@
+[
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Category",
+			"is_extra_data": false
+		}
+	},
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 2,
+		"fields":{
+			"friendly_name": "Test Extra Data",
+			"is_extra_data": true
+		}
+	},
+	{
+		"model": "datastore.ArtifactType",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Installer",
+			"installer_type": "NORMAL INSTALLER",
+			"extension": ".test"
+		}
+	},
+	{
+		"model": "datastore.ArtifactType",
+		"pk": 2,
+		"fields":{
+			"friendly_name": "Test Other Artifact",
+			"installer_type": "NOT INSTALLER",
+			"extension": ".test"
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 1,
+		"fields":{
+			"name": "TestBuild1"
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 1,
+		"fields":{
+			"value": "MetaDataValue1",
+			"category": 1,
+			"build": 1
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 2,
+		"fields":{
+			"value": "ExtraDataValue1",
+			"category": 2,
+			"build": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 1,
+		"fields":{
+			"download_url": "http://download.com/1",
+			"build": 1,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 2,
+		"fields":{
+			"download_url": "http://download.com/2",
+			"build": 1,
+			"a_type": 2
+		}
+	}
+]

@@ -1,9 +1,10 @@
 from datastore.models import *
 from django.test import TestCase
+from django.test.client import Client
 
 
-class BuildTest(TestCase):
-	fixtures = ['test_data']
+class ModelTests(TestCase):
+	fixtures = ['model_test_data']
 
 	def test_build_unicode_is_build_name(self):
 		name = "TestName"

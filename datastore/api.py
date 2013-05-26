@@ -1,4 +1,5 @@
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
+from tastypie.authentication import ApiKeyAuthentication
 from tastypie import fields
 from datastore.models import *
 from django.db.models import Q
@@ -25,6 +26,7 @@ class BuildResource(EmuBabyResource):
 	class Meta:
 		queryset = Build.objects.all()
 		resource_name = 'build'
+		authentication = ApiKeyAuthentication()
 
 
 class MetaDataCategoryResource(EmuBabyResource):
@@ -34,6 +36,7 @@ class MetaDataCategoryResource(EmuBabyResource):
 		filtering = {
 			'slug': ALL
 		}
+		authentication = ApiKeyAuthentication()
 
 
 class MetaDataResource(EmuBabyResource):
@@ -52,12 +55,14 @@ class MetaDataResource(EmuBabyResource):
 		filtering = {
 			'category': ALL_WITH_RELATIONS
 		}
+		authentication = ApiKeyAuthentication()
 
 
 class ArtifactTypeResource(EmuBabyResource):
 	class Meta:
 		queryset = ArtifactType.objects.all()
 		resource_name = 'artifacttype'
+		authentication = ApiKeyAuthentication()
 
 
 class ArtifactResource(EmuBabyResource):
@@ -68,3 +73,4 @@ class ArtifactResource(EmuBabyResource):
 		filtering = {
 			'a_type': ALL_WITH_RELATIONS
 		}
+		authentication = ApiKeyAuthentication()

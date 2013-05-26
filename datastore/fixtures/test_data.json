@@ -19,5 +19,23 @@
 		"fields":{
 			"name": "TestBuild1"
 		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 1,
+		"fields":{
+			"value": "MetaDataValue1",
+			"category": 1,
+			"build": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 1,
+		"fields":{
+			"download_url": "http://download.com",
+			"build": 1,
+			"a_type": 1
+		}
 	}
 ]

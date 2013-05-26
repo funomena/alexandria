@@ -20,7 +20,7 @@ class MetaDataCategory(models.Model):
 		return unicode(self.friendly_name)
 
 	def save(self, *args, **kwargs):
-		if not self.slug:
+		if not self.slug or self.slug == "":
 			self.slug = slugify(self.friendly_name)
 
 		return super(MetaDataCategory, self).save(*args, **kwargs)
@@ -57,9 +57,8 @@ class ArtifactType(models.Model):
 		return unicode(self.friendly_name)
 
 	def save(self, *args, **kwargs):
-		if not self.slug:
+		if not self.slug or self.slug == "":
 			self.slug = slugify(self.friendly_name)
-
 		return super(ArtifactType, self).save(*args, **kwargs)
 
 

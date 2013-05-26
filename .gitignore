@@ -4,3 +4,5 @@ venv
 *.sublime-workspace
 *.DS_Store
 instance
+htmlcov
+.coverage

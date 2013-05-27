@@ -34,11 +34,6 @@ class ModelTests(TestCase):
 		self.assertEqual(t.slug, "test-type")
 
 
-	def test_metadata_unicode_contains_build_id(self):
-		m = MetaData.objects.get(pk=1)
-		self.assertIn("Build 1", unicode(m))
-
-
 	def test_metadata_unicode_contains_category_name_and_value(self):
 		m = MetaData.objects.get(pk=1)
 		self.assertIn("MetaDataValue1", unicode(m))

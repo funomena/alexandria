@@ -3,7 +3,7 @@ from django.template.defaultfilters import slugify
 
 
 class Build(models.Model):
-	name = models.CharField(max_length=128)
+	name = models.CharField(max_length=128, null=True)
 	created = models.DateTimeField(auto_now_add=True, default="1970-01-01 00:01")
 	starred = models.BooleanField(default=False)
 
@@ -28,11 +28,11 @@ class MetaDataCategory(models.Model):
 
 class MetaData(models.Model):
 	category = models.ForeignKey(MetaDataCategory, related_name='values')
-	build = models.ForeignKey(Build, related_name='metadata')
+	builds = models.ManyToManyField(Build, related_name='metadata')
 	value = models.CharField(max_length=128)
 
 	def __unicode__(self):
-		return u"%s: %s (Build %s)" % (self.category.friendly_name, self.value, self.build.id)
+		return u"%s: %s" % (self.category.friendly_name, self.value)
 
 
 class ArtifactType(models.Model):

@@ -26,7 +26,7 @@
 		"fields":{
 			"value": "MetaDataValue1",
 			"category": 1,
-			"build": 1
+			"builds": [1]
 		}
 	},
 	{

@@ -46,7 +46,7 @@
 		"fields":{
 			"value": "MetaDataValue1",
 			"category": 1,
-			"build": 1
+			"builds": [1]
 		}
 	},
 	{
@@ -55,7 +55,7 @@
 		"fields":{
 			"value": "ExtraDataValue1",
 			"category": 2,
-			"build": 1
+			"builds": [1]
 		}
 	},
 	{

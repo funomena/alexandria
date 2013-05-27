@@ -1,21 +1,24 @@
 from datastore.models import *
-from django.test import TestCase
+from tastypie.test import ResourceTestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.http.response import HttpResponseNotFound
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
 import json
+import urllib
 
-class APITests(TestCase):
+class APITests(ResourceTestCase):
 	fixtures = ['api_test_data']
 
 	def setUp(self):
+		super(APITests, self).setUp()
 		self.user = User.objects.create_user('timmygclef', 'timmygclef@example.com', 'secret')
 		self.client = Client()
 		self.api_key = ApiKey.objects.create(user=self.user)
 		self.api_prefix = "/api/v1/"
 		self.valid_auth_params = {'format':'json', 'username': self.user.username, 'api_key':self.api_key.key}
+		self.api_auth = self.create_apikey(self.user.username, self.api_key.key)
 
 
 	def test_api_exists_at_expected_url(self):
@@ -170,3 +173,21 @@ class APITests(TestCase):
 		self.assertIn('resource_uri', other_artifact)
 
 		self.assertEquals(other_artifact['type_name'], "Test Other Artifact")
+
+
+	def test_post_build_creates_build_object(self):
+		post_data = {}
+		post_data["metadata"] = [
+									{"category": "Test Category", "value": "MetaDataValue2"},
+									{"category": "Test Extra Data", "value": "ExtraData2"}
+								]
+		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+		r = self.client.get(self.api_prefix + "build/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+		self.assertEquals(data['meta']['total_count'], 2)
+
+
+
+	def test_post_build_creates_metadata_objects(self):
+		pass

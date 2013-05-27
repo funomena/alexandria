@@ -1,8 +1,11 @@
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authorization import Authorization
 from tastypie import fields
 from datastore.models import *
 from django.db.models import Q
+from django.conf.urls import patterns, include, url
+from django.template.defaultfilters import slugify
 from datastore.utils import get_build_query_set
 
 
@@ -19,10 +22,22 @@ class MetaDataCategoryResource(EmuBabyResource):
 			'slug': ALL,
 			'is_extra_data': ALL
 		}
+		
+		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 
 
 class MetaDataResource(EmuBabyResource):
+
+	category = fields.ForeignKey(MetaDataCategoryResource, 'category', full=True, full_detail=True)
+
+
+	def prepend_urls(self):
+		return [
+			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="meta_category_slug_dispatch_detail"),
+		]
+
+
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
 		if request.GET.get('distinct', None):
@@ -30,14 +45,14 @@ class MetaDataResource(EmuBabyResource):
 		else:
 			return base_list
 
-
-	category = fields.ForeignKey(MetaDataCategoryResource, 'category', full=True, full_detail=True)
 	class Meta:
 		queryset = MetaData.objects.all()
 		resource_name = 'metadata'
 		filtering = {
 			'category': ALL_WITH_RELATIONS
 		}
+		
+		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 
 
@@ -45,6 +60,8 @@ class ArtifactTypeResource(EmuBabyResource):
 	class Meta:
 		queryset = ArtifactType.objects.all()
 		resource_name = 'artifacttype'
+		
+		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 		filtering = {
 			'installer_type': ALL
@@ -53,18 +70,28 @@ class ArtifactTypeResource(EmuBabyResource):
 
 class ArtifactResource(EmuBabyResource):
 	a_type = fields.ForeignKey(ArtifactTypeResource, 'a_type', full=True, full_detail=True)
+
+
+	def prepend_urls(self):
+		return [
+			url(r"^(?P<resource_name>%s)/(?P<a_type__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="a_type_slug_dispatch_detail"),
+		]
+
+
 	class Meta:
 		queryset = Artifact.objects.all()
 		resource_name = 'artifact'
 		filtering = {
 			'a_type': ALL_WITH_RELATIONS
 		}
+		
+		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 
 
 class BuildResource(EmuBabyResource):
 	metadata = fields.ToManyField(	MetaDataResource, 
-									attribute=lambda bundle: MetaData.objects.filter(build__id=bundle.obj.id, 
+									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, 
 									category__is_extra_data=False), 
 									null=True,
 									use_in='detail',
@@ -72,7 +99,7 @@ class BuildResource(EmuBabyResource):
 									full_detail=True)
 
 	extra_data = fields.ToManyField(MetaDataResource, 
-									attribute=lambda bundle: MetaData.objects.filter(build__id=bundle.obj.id, category__is_extra_data=True), 
+									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, category__is_extra_data=True), 
 									null=True,
 									use_in='detail',
 									full=True,
@@ -92,6 +119,8 @@ class BuildResource(EmuBabyResource):
 										use_in='detail',
 										full=True,
 										full_detail=True)
+
+	name = fields.CharField(blank=True, attribute='name')
 
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
@@ -140,7 +169,16 @@ class BuildResource(EmuBabyResource):
 		return dehydrate_other_artifacts
 
 
+	def hydrate_metadata(self, bundle):
+		for m in bundle.data['metadata']:
+			meta_cat = MetaDataCategory.objects.get(friendly_name = m['category'])
+			meta_val = MetaData.objects.create(category=meta_cat, value=m['value'], build=bundle.obj)
+		return bundle
+
 	class Meta:
 		queryset = Build.objects.all()
 		resource_name = 'build'
+		
+		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
+		always_return_data = True

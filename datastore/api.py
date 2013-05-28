@@ -66,18 +66,12 @@ class MetaDataResource(EmuBabyResource):
 
 		return dehydrated_data
 
+
 	def hydrate(self, bundle):
 		cat, created = MetaDataCategory.objects.get_or_create(friendly_name=bundle.data["category"])
 		bundle.data["category"] = cat
 		return bundle
 
-
-	def apply_filters(self, request, applicable_filters):
-		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
-		if request.GET.get('distinct', None):
-			return base_list.distinct('value')
-		else:
-			return base_list
 
 	class Meta:
 		queryset = MetaData.objects.all()

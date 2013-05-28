@@ -22,7 +22,6 @@ class MetaDataCategoryResource(EmuBabyResource):
 			'slug': ALL,
 			'is_extra_data': ALL
 		}
-		
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 
@@ -34,8 +33,23 @@ class MetaDataResource(EmuBabyResource):
 
 	def prepend_urls(self):
 		return [
-			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="meta_category_slug_dispatch_detail"),
+			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="meta_category_slug_dispatch_detail"),
+			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/(?P<value>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="meta_category_slug_dispatch_detail"),
+		
 		]
+
+
+	def dehydrate(self, bundle):
+		builds = []
+		for b in Build.objects.filter(metadata__id=bundle.obj.id):
+			builds.append(b.id)
+		return {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds}
+
+
+	def hydrate(self, bundle):
+		cat, created = MetaDataCategory.objects.get_or_create(friendly_name=bundle.data["category"])
+		bundle.data["category"] = cat
+		return bundle
 
 
 	def apply_filters(self, request, applicable_filters):
@@ -168,12 +182,6 @@ class BuildResource(EmuBabyResource):
 			dehydrate_other_artifacts.append({'type_name': type_name, 'download_url': download_url, 'resource_uri': m.data['resource_uri']})
 		return dehydrate_other_artifacts
 
-
-	def hydrate_metadata(self, bundle):
-		for m in bundle.data['metadata']:
-			meta_cat = MetaDataCategory.objects.get(friendly_name = m['category'])
-			meta_val = MetaData.objects.create(category=meta_cat, value=m['value'], build=bundle.obj)
-		return bundle
 
 	class Meta:
 		queryset = Build.objects.all()

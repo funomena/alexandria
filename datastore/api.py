@@ -3,11 +3,11 @@ from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import Authorization
 from tastypie import fields
 from datastore.models import *
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.conf.urls import patterns, include, url
 from django.template.defaultfilters import slugify
 from datastore.utils import get_build_query_set
-
 
 class EmuBabyResource(ModelResource):
 	def determine_format(self, request):
@@ -35,16 +35,34 @@ class MetaDataResource(EmuBabyResource):
 		return [
 			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="meta_category_slug_dispatch_detail"),
 			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/(?P<value>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="meta_category_slug_dispatch_detail"),
-		
 		]
+
+
+	def get_resource_uri(self, bundle_or_obj=None, name='api_dispatch_list'):
+		url = super(MetaDataResource, self).get_resource_uri()
+		if bundle_or_obj is None:
+			return url
+
+		if bundle_or_obj.obj is not None:
+			val = bundle_or_obj.obj.value
+			slug = bundle_or_obj.obj.category.slug
+		else:
+			val = bundle_or_obj.data['value']
+			slug = bundle_or_obj.data['slug']
+		return "%s%s/%s/" % (url, slug, val)
 
 
 	def dehydrate(self, bundle):
 		builds = []
 		for b in Build.objects.filter(metadata__id=bundle.obj.id):
 			builds.append(b.id)
-		return {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds}
 
+		dehydrated_data = {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds}
+
+		if not bundle.obj.category.is_extra_data:
+			dehydrated_data['resource_uri'] = self.get_resource_uri(bundle)
+
+		return dehydrated_data
 
 	def hydrate(self, bundle):
 		cat, created = MetaDataCategory.objects.get_or_create(friendly_name=bundle.data["category"])
@@ -145,24 +163,6 @@ class BuildResource(EmuBabyResource):
 			return base_list
 		else:
 			return q_list
-
-
-	def dehydrate_metadata(self, bundle):
-		dehydrated_metadata = []
-		for m in bundle.data['metadata']:
-			value = m.data['value']
-			cat = m.data['category'].data['friendly_name']
-			dehydrated_metadata.append({'category_name': cat, 'value': value, 'resource_uri': m.data['resource_uri']})
-		return dehydrated_metadata
-
-
-	def dehydrate_extra_data(self, bundle):
-		dehydrated_extra_data = []
-		for m in bundle.data['extra_data']:
-			value = m.data['value']
-			cat = m.data['category'].data['friendly_name']
-			dehydrated_extra_data.append({'category_name': cat, 'value': value})
-		return dehydrated_extra_data
 
 
 	def dehydrate_installers(self, bundle):

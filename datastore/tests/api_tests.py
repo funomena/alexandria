@@ -130,6 +130,18 @@ class APITests(ResourceTestCase):
 		self.assertEquals(metadata['category'], "Test Category")
 
 
+	def test_build_get_detail_has_metadata_with_accurate_resource_uri(self):
+		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+
+		metadata = data['metadata'][0]
+		m = self.client.get(metadata['resource_uri'], data=self.valid_auth_params)
+		test_data = json.loads(m.content)
+
+		self.assertEquals(metadata['category'], test_data['category'])
+		self.assertEquals(metadata['value'], test_data['value'])
+
+
 	def test_build_get_detail_has_valid_extra_data_list(self):
 		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
 		data = json.loads(r.content)

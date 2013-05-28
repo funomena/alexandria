@@ -4,6 +4,7 @@
 		"pk": 1,
 		"fields":{
 			"friendly_name": "Test Category",
+			"slug": "test-category",
 			"is_extra_data": false
 		}
 	},
@@ -12,6 +13,7 @@
 		"pk": 2,
 		"fields":{
 			"friendly_name": "Test Extra Data",
+			"slug": "test-extra-data",
 			"is_extra_data": true
 		}
 	},

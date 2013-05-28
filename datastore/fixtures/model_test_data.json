@@ -14,19 +14,19 @@
 		}
 	},
 	{
-		"model": "datastore.Build",
-		"pk": 1,
-		"fields":{
-			"name": "TestBuild1"
-		}
-	},
-	{
 		"model": "datastore.MetaData",
 		"pk": 1,
 		"fields":{
 			"value": "MetaDataValue1",
-			"category": 1,
-			"builds": [1]
+			"category": 1
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 1,
+		"fields":{
+			"name": "TestBuild1",
+			"metadata": [1]
 		}
 	},
 	{

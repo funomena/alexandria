@@ -187,6 +187,26 @@ class APITests(ResourceTestCase):
 		self.assertEquals(other_artifact['type_name'], "Test Other Artifact")
 
 
+	def test_post_build_creates_and_returns_build_data(self):
+		num_meta_datas = len(MetaData.objects.all())
+		post_data = {}
+		post_data["metadata"] = [
+									{"category": "Test Category", "value": "MetaDataValue2"},
+									{"category": "Test Extra Data", "value": "ExtraData2"}
+								]
+		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+		post_returned_data = json.loads(p.content)
+		self.assertIn('id', post_returned_data)
+		self.assertEquals(len(post_returned_data['metadata']), 2)
+
+		r = self.client.get(self.api_prefix + "build/" + str(post_returned_data['id']) + "/", data=self.valid_auth_params)
+		retrieved_data = json.loads(r.content)
+		metadata = retrieved_data['metadata'][0]
+		self.assertEquals(metadata['category'], "Test Category")
+		self.assertEquals(metadata['value'], "MetaDataValue2")
+
+
 	def test_post_build_accepts_and_creates_new_metadata(self):
 		num_meta_datas = len(MetaData.objects.all())
 		post_data = {}
@@ -227,3 +247,4 @@ class APITests(ResourceTestCase):
 		m = self.client.get(self.api_prefix + "metadata/", data=self.valid_auth_params)
 		data = json.loads(m.content)
 		self.assertEquals(num_meta_datas + 1, data['meta']['total_count'])
+

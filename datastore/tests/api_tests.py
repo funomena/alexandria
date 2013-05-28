@@ -187,7 +187,8 @@ class APITests(ResourceTestCase):
 		self.assertEquals(other_artifact['type_name'], "Test Other Artifact")
 
 
-	def test_post_build_creates_build_object(self):
+	def test_post_build_accepts_and_creates_new_metadata(self):
+		num_meta_datas = len(MetaData.objects.all())
 		post_data = {}
 		post_data["metadata"] = [
 									{"category": "Test Category", "value": "MetaDataValue2"},
@@ -195,11 +196,34 @@ class APITests(ResourceTestCase):
 								]
 		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
 		self.assertEquals(p.status_code, 201)
+
 		r = self.client.get(self.api_prefix + "build/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(data['meta']['total_count'], 2)
 
+		# Test if the post created two new metadata values
+		self.assertEquals(len(MetaData.objects.all()), num_meta_datas + 2)
+
+		#Sanity check to see if the API catches the new values
+		m = self.client.get(self.api_prefix + "metadata/", data=self.valid_auth_params)
+		data = json.loads(m.content)
+		self.assertEquals(num_meta_datas + 2, data['meta']['total_count'])
 
 
-	def test_post_build_creates_metadata_objects(self):
-		pass
+	def test_post_build_accepts_and_uses_existing_metadata(self):
+		num_meta_datas = len(MetaData.objects.all())
+		post_data = {}
+		post_data["metadata"] = [
+									{"category": "Test Category", "value": "MetaDataValue1"},
+									{"category": "Test Extra Data", "value": "ExtraData2"}
+								]
+		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+
+		# Test if the post created two new metadata values
+		self.assertEquals(len(MetaData.objects.all()), num_meta_datas + 1)
+
+		#Sanity check to see if the API catches the new values
+		m = self.client.get(self.api_prefix + "metadata/", data=self.valid_auth_params)
+		data = json.loads(m.content)
+		self.assertEquals(num_meta_datas + 1, data['meta']['total_count'])

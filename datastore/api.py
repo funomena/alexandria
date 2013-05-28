@@ -30,6 +30,8 @@ class MetaDataResource(EmuBabyResource):
 
 	category = fields.ForeignKey(MetaDataCategoryResource, 'category', full=True, full_detail=True)
 
+	builds = fields.ToManyField('datastore.api.BuildResource', 'builds', related_name='metadata')
+
 
 	def prepend_urls(self):
 		return [
@@ -126,13 +128,16 @@ class BuildResource(EmuBabyResource):
 									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, 
 									category__is_extra_data=False), 
 									null=True,
+									blank=True,
 									use_in='detail',
 									full=True,
-									full_detail=True)
+									full_detail=True,
+									related_name='metadata')
 
 	extra_data = fields.ToManyField(MetaDataResource, 
 									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, category__is_extra_data=True), 
 									null=True,
+									blank=True,
 									use_in='detail',
 									full=True,
 									full_detail=True)
@@ -140,6 +145,7 @@ class BuildResource(EmuBabyResource):
 	installers = fields.ToManyField(ArtifactResource, 
 									attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id).exclude(a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE),
 									null=True,
+									blank=True,
 									use_in='detail',
 									full=True,
 									full_detail=True)
@@ -148,11 +154,12 @@ class BuildResource(EmuBabyResource):
 										attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id, 
 																						a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE), 
 										null=True,
+										blank=True,
 										use_in='detail',
 										full=True,
 										full_detail=True)
 
-	name = fields.CharField(blank=True, attribute='name')
+	name = fields.CharField(blank=True, null=True, attribute='name')
 
 	def apply_filters(self, request, applicable_filters):
 		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
@@ -181,6 +188,17 @@ class BuildResource(EmuBabyResource):
 			type_name = m.data['a_type'].data['friendly_name']
 			dehydrate_other_artifacts.append({'type_name': type_name, 'download_url': download_url, 'resource_uri': m.data['resource_uri']})
 		return dehydrate_other_artifacts
+
+
+	def hydrate_metadata(self, bundle):
+		meta_ids = []
+		for m in bundle.data['metadata']:
+			meta_cat = MetaDataCategory.objects.get(friendly_name=m['category'])
+			meta_val, created = MetaData.objects.get_or_create(category=meta_cat, value=m['value'])
+			meta_ids.append(meta_val.id)
+
+		bundle.data['metadata'] = MetaData.objects.filter(id__in=meta_ids)
+		return bundle
 
 
 	class Meta:

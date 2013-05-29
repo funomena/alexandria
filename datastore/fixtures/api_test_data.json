@@ -4,17 +4,15 @@
 		"pk": 1,
 		"fields":{
 			"friendly_name": "Test Category",
-			"slug": "test-category",
-			"is_extra_data": false
+			"slug": "test-category"
 		}
 	},
 	{
-		"model": "datastore.MetaDataCategory",
-		"pk": 2,
+		"model": "datastore.ExtraDataType",
+		"pk": 1,
 		"fields":{
 			"friendly_name": "Test Extra Data",
-			"slug": "test-extra-data",
-			"is_extra_data": true
+			"slug": "test-extra-data"
 		}
 	},
 	{
@@ -44,19 +42,20 @@
 		}
 	},
 	{
-		"model": "datastore.MetaData",
-		"pk": 2,
-		"fields":{
-			"value": "ExtraDataValue1",
-			"category": 2
-		}
-	},
-	{
 		"model": "datastore.Build",
 		"pk": 1,
 		"fields":{
 			"name": "TestBuild1",
-			"metadata":[1,2]
+			"metadata":[1]
+		}
+	},
+	{
+		"model": "datastore.ExtraDataValue",
+		"pk": 1,
+		"fields":{
+			"value": "ExtraDataValue1",
+			"ed_type": 1,
+			"build": 1
 		}
 	},
 	{

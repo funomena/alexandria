@@ -150,11 +150,11 @@ class APITests(ResourceTestCase):
 		self.assertEquals(1, len(data['extra_data']))
 
 		extra_data = data['extra_data'][0]
-		self.assertIn('category', extra_data)
+		self.assertIn('type', extra_data)
 		self.assertIn('value', extra_data)
 		self.assertNotIn('resource_uri', extra_data)
 
-		self.assertEquals(extra_data['category'], "Test Extra Data")
+		self.assertEquals(extra_data['type'], "Test Extra Data")
 
 
 	def test_build_get_detail_has_valid_installer_list(self):
@@ -191,9 +191,11 @@ class APITests(ResourceTestCase):
 		num_meta_datas = len(MetaData.objects.all())
 		post_data = {}
 		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue2"},
-									{"category": "Test Extra Data", "value": "ExtraData2"}
+									{"category": "Test Category", "value": "MetaDataValue2"}
 								]
+		post_data["extra_data"] = 	[
+										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+									]
 		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
 		self.assertEquals(p.status_code, 201)
 		post_returned_data = json.loads(p.content)
@@ -211,10 +213,13 @@ class APITests(ResourceTestCase):
 		num_meta_datas = len(MetaData.objects.all())
 		post_data = {}
 		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue2"},
-									{"category": "Test Extra Data", "value": "ExtraData2"}
+									{"category": "Test Category", "value": "MetaDataValue2"}
 								]
+		post_data["extra_data"] = 	[
+										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+									]
 		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+		print p.content
 		self.assertEquals(p.status_code, 201)
 
 		r = self.client.get(self.api_prefix + "build/", data=self.valid_auth_params)
@@ -234,9 +239,11 @@ class APITests(ResourceTestCase):
 		num_meta_datas = len(MetaData.objects.all())
 		post_data = {}
 		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue1"},
-									{"category": "Test Extra Data", "value": "ExtraData2"}
+									{"category": "Test Category", "value": "MetaDataValue2"}
 								]
+		post_data["extra_data"] = 	[
+										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+									]
 		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
 		self.assertEquals(p.status_code, 201)
 

@@ -1,5 +1,4 @@
-from django.conf.urls import patterns, include, url
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from tastypie.api import Api
 from datastore.api import *
 import frontend.views

@@ -1,13 +1,15 @@
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import Authorization
-from tastypie import fields
+from tastypie.exceptions import ImmediateHttpResponse
+from tastypie import fields, http
 from datastore.models import *
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.conf.urls import patterns, include, url
 from django.template.defaultfilters import slugify
 from datastore.utils import get_build_query_set
+import json
 
 class EmuBabyResource(ModelResource):
 	def determine_format(self, request):
@@ -19,8 +21,7 @@ class MetaDataCategoryResource(EmuBabyResource):
 		queryset = MetaDataCategory.objects.all()
 		resource_name = 'metadatacategory'
 		filtering = {
-			'slug': ALL,
-			'is_extra_data': ALL
+			'slug': ALL
 		}
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
@@ -58,12 +59,7 @@ class MetaDataResource(EmuBabyResource):
 		builds = []
 		for b in Build.objects.filter(metadata__id=bundle.obj.id):
 			builds.append(b.id)
-
-		dehydrated_data = {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds}
-
-		if not bundle.obj.category.is_extra_data:
-			dehydrated_data['resource_uri'] = self.get_resource_uri(bundle)
-
+		dehydrated_data = {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds, 'resource_uri': self.get_resource_uri(bundle)}
 		return dehydrated_data
 
 
@@ -82,6 +78,101 @@ class MetaDataResource(EmuBabyResource):
 		
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
+
+
+class ExtraDataTypeResource(EmuBabyResource):
+	class Meta:
+		queryset = ExtraDataType.objects.all()
+		resource_name = 'extradatatype'
+		filtering = {
+			'slug': ALL
+		}
+		authorization = Authorization()
+		authentication = ApiKeyAuthentication()
+
+
+class ExtraDataValueResource(EmuBabyResource):
+
+	ed_type = fields.ForeignKey(ExtraDataTypeResource, 'ed_type', full=True, full_detail=True)
+
+	def dehydrate(self, bundle):
+		dehydrated_data = {'value': bundle.obj.value, 'type': bundle.obj.ed_type.friendly_name}
+		return dehydrated_data
+
+	def hydrate(self, bundle):
+		ed_type = ExtraDataType.objects.get(friendly_name=bundle.data['ed_type'])
+		bundle.data['ed_type'] = ed_type
+		return bundle
+
+	class Meta:
+		queryset = ExtraDataValue.objects.all()
+		resource_name = 'extradata'
+		filtering = {
+			'ed_type': ALL_WITH_RELATIONS
+		}
+		
+		authorization = Authorization()
+		authentication = ApiKeyAuthentication()
+
+
+class BuildResource(EmuBabyResource):
+	metadata = fields.ToManyField(MetaDataResource, 'metadata', related_name='builds', use_in='detail', full=True, full_detail=True)
+
+	extra_data = fields.ToManyField(ExtraDataValueResource, 'extra_data', related_name='build', null=True, blank=True, use_in='detail', full=True, full_detail=True)
+
+	installers = fields.ToManyField('datastore.api.ArtifactResource', 
+									attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id).exclude(a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE),
+									null=True,
+									blank=True,
+									use_in='detail',
+									full=True,
+									full_detail=True)
+
+	other_artifacts = fields.ToManyField('datastore.api.ArtifactResource', 
+										attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id, 
+																						a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE), 
+										null=True,
+										blank=True,
+										use_in='detail',
+										full=True,
+										full_detail=True)
+
+	name = fields.CharField(blank=True, null=True, attribute='name')
+
+
+	def apply_filters(self, request, applicable_filters):
+		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
+
+		q_list = get_build_query_set(request.GET, base_list)
+
+		if q_list is None:
+			return base_list
+		else:
+			return q_list
+
+
+	def hydrate_metadata(self, bundle):
+		meta_ids = []
+		for m in bundle.data['metadata']:
+			try:
+				meta_cat = MetaDataCategory.objects.get(friendly_name=m['category'])
+			except Exception as e:
+				error = {'message': "The specified metadata category does not exist: %s" % m['category'], 'exception': str(e)}
+				raise ImmediateHttpResponse(http.HttpBadRequest(json.dumps(error)))
+			meta_val, created = MetaData.objects.get_or_create(category=meta_cat, value=m['value'])
+			meta_ids.append(meta_val.id)
+
+		bundle.data['metadata'] = MetaData.objects.filter(id__in=meta_ids)
+		return bundle
+
+
+	class Meta:
+		queryset = Build.objects.all()
+		resource_name = 'build'
+		
+		authorization = Authorization()
+		authentication = ApiKeyAuthentication()
+		always_return_data = True
 
 
 class ArtifactTypeResource(EmuBabyResource):
@@ -106,6 +197,14 @@ class ArtifactResource(EmuBabyResource):
 		]
 
 
+	def dehydrate(self, bundle):
+		dehydrated_data = {'type_name': bundle.data['a_type'].data['friendly_name'], 'download_url': bundle.data['download_url'], 'resource_uri': bundle.data['resource_uri']}
+		return dehydrated_data
+
+
+	def hydrate(self, bundle):
+		return bundle
+
 	class Meta:
 		queryset = Artifact.objects.all()
 		resource_name = 'artifact'
@@ -115,91 +214,3 @@ class ArtifactResource(EmuBabyResource):
 		
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
-
-
-class BuildResource(EmuBabyResource):
-	metadata = fields.ToManyField(	MetaDataResource, 
-									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, 
-									category__is_extra_data=False), 
-									null=True,
-									blank=True,
-									use_in='detail',
-									full=True,
-									full_detail=True,
-									related_name='metadata')
-
-	extra_data = fields.ToManyField(MetaDataResource, 
-									attribute=lambda bundle: MetaData.objects.filter(builds__id=bundle.obj.id, category__is_extra_data=True), 
-									null=True,
-									blank=True,
-									use_in='detail',
-									full=True,
-									full_detail=True)
-
-	installers = fields.ToManyField(ArtifactResource, 
-									attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id).exclude(a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE),
-									null=True,
-									blank=True,
-									use_in='detail',
-									full=True,
-									full_detail=True)
-
-	other_artifacts = fields.ToManyField(ArtifactResource, 
-										attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id, 
-																						a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE), 
-										null=True,
-										blank=True,
-										use_in='detail',
-										full=True,
-										full_detail=True)
-
-	name = fields.CharField(blank=True, null=True, attribute='name')
-
-
-	def apply_filters(self, request, applicable_filters):
-		base_list = super(BuildResource, self).apply_filters(request, applicable_filters)
-
-		q_list = get_build_query_set(request.GET, base_list)
-
-		if q_list is None:
-			return base_list
-		else:
-			return q_list
-
-
-	def dehydrate_installers(self, bundle):
-		dehydrated_installers = []
-		for m in bundle.data['installers']:
-			download_url = m.data['download_url']
-			type_name = m.data['a_type'].data['friendly_name']
-			dehydrated_installers.append({'type_name': type_name, 'download_url': download_url, 'resource_uri': m.data['resource_uri']})
-		return dehydrated_installers
-
-
-	def dehydrate_other_artifacts(self, bundle):
-		dehydrate_other_artifacts = []
-		for m in bundle.data['other_artifacts']:
-			download_url = m.data['download_url']
-			type_name = m.data['a_type'].data['friendly_name']
-			dehydrate_other_artifacts.append({'type_name': type_name, 'download_url': download_url, 'resource_uri': m.data['resource_uri']})
-		return dehydrate_other_artifacts
-
-
-	def hydrate_metadata(self, bundle):
-		meta_ids = []
-		for m in bundle.data['metadata']:
-			meta_cat = MetaDataCategory.objects.get(friendly_name=m['category'])
-			meta_val, created = MetaData.objects.get_or_create(category=meta_cat, value=m['value'])
-			meta_ids.append(meta_val.id)
-
-		bundle.data['metadata'] = MetaData.objects.filter(id__in=meta_ids)
-		return bundle
-
-
-	class Meta:
-		queryset = Build.objects.all()
-		resource_name = 'build'
-		
-		authorization = Authorization()
-		authentication = ApiKeyAuthentication()
-		always_return_data = True

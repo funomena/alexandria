@@ -5,20 +5,12 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponseNotFound
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
+from datastore.tests.authenticated_tests import AuthenticatedTestCase
 import json
 import urllib
 
-class APITests(ResourceTestCase):
+class APITests(AuthenticatedTestCase):
 	fixtures = ['api_test_data']
-
-	def setUp(self):
-		super(APITests, self).setUp()
-		self.user = User.objects.create_user('timmygclef', 'timmygclef@example.com', 'secret')
-		self.client = Client()
-		self.api_key = ApiKey.objects.create(user=self.user)
-		self.api_prefix = "/api/v1/"
-		self.valid_auth_params = {'format':'json', 'username': self.user.username, 'api_key':self.api_key.key}
-		self.api_auth = self.create_apikey(self.user.username, self.api_key.key)
 
 
 	def test_api_exists_at_expected_url(self):

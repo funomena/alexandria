@@ -31,7 +31,7 @@ class MetaDataResource(EmuBabyResource):
 
 	category = fields.ForeignKey(MetaDataCategoryResource, 'category', full=True, full_detail=True)
 
-	builds = fields.ToManyField('datastore.api.BuildResource', 'builds', related_name='metadata')
+	builds = fields.ToManyField('datastore.api.BuildResource', 'builds', related_name='metadata', blank=True, null=True)
 
 
 	def prepend_urls(self):
@@ -95,6 +95,8 @@ class ExtraDataValueResource(EmuBabyResource):
 
 	ed_type = fields.ForeignKey(ExtraDataTypeResource, 'ed_type', full=True, full_detail=True)
 
+	build = fields.ToOneField('datastore.api.BuildResource', 'build')
+
 	def dehydrate(self, bundle):
 		dehydrated_data = {'value': bundle.obj.value, 'type': bundle.obj.ed_type.friendly_name}
 		return dehydrated_data
@@ -108,7 +110,8 @@ class ExtraDataValueResource(EmuBabyResource):
 		queryset = ExtraDataValue.objects.all()
 		resource_name = 'extradata'
 		filtering = {
-			'ed_type': ALL_WITH_RELATIONS
+			'ed_type': ALL_WITH_RELATIONS,
+			'build': ALL_WITH_RELATIONS
 		}
 		
 		authorization = Authorization()
@@ -149,21 +152,6 @@ class BuildResource(EmuBabyResource):
 			return base_list
 		else:
 			return q_list
-
-
-	def hydrate_metadata(self, bundle):
-		meta_ids = []
-		for m in bundle.data['metadata']:
-			try:
-				meta_cat = MetaDataCategory.objects.get(friendly_name=m['category'])
-			except Exception as e:
-				error = {'message': "The specified metadata category does not exist: %s" % m['category'], 'exception': str(e)}
-				raise ImmediateHttpResponse(http.HttpBadRequest(json.dumps(error)))
-			meta_val, created = MetaData.objects.get_or_create(category=meta_cat, value=m['value'])
-			meta_ids.append(meta_val.id)
-
-		bundle.data['metadata'] = MetaData.objects.filter(id__in=meta_ids)
-		return bundle
 
 
 	class Meta:

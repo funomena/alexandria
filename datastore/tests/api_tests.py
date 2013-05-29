@@ -12,7 +12,6 @@ import urllib
 class APITests(AuthenticatedTestCase):
 	fixtures = ['api_test_data']
 
-
 	def test_api_exists_at_expected_url(self):
 		r = self.client.get(self.api_prefix, data={'format':'json'})
 		self.assertNotIsInstance(r, HttpResponseNotFound)

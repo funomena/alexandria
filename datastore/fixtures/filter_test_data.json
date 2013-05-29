@@ -1,0 +1,236 @@
+[
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Category 1",
+			"slug": "category-1"
+		}
+	},
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 2,
+		"fields":{
+			"friendly_name": "Category 2",
+			"slug": "category-2"
+		}
+	},
+	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 3,
+		"fields":{
+			"friendly_name": "Category 3",
+			"slug": "category-3"
+		}
+	},
+	{
+		"model": "datastore.ExtraDataType",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Extra Data",
+			"slug": "test-extra-data"
+		}
+	},
+	{
+		"model": "datastore.ArtifactType",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Installer",
+			"installer_type": "NORMAL INSTALLER",
+			"extension": ".test"
+		}
+	},
+	{
+		"model": "datastore.ArtifactType",
+		"pk": 2,
+		"fields":{
+			"friendly_name": "Test Other Artifact",
+			"installer_type": "NOT INSTALLER",
+			"extension": ".test"
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 1,
+		"fields":{
+			"value": "MetaDataValue11",
+			"category": 1
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 2,
+		"fields":{
+			"value": "MetaDataValue12",
+			"category": 1
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 3,
+		"fields":{
+			"value": "MetaDataValue21",
+			"category": 2
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 4,
+		"fields":{
+			"value": "MetaDataValue22",
+			"category": 2
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 5,
+		"fields":{
+			"value": "MetaDataValue31",
+			"category": 3
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 6,
+		"fields":{
+			"value": "MetaDataValue32",
+			"category": 3
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 1,
+		"fields":{
+			"name": "TestBuild135",
+			"metadata":[1, 3, 5]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 2,
+		"fields":{
+			"name": "TestBuild145",
+			"metadata":[1, 4, 5]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 3,
+		"fields":{
+			"name": "TestBuild235",
+			"metadata":[2, 3, 5]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 4,
+		"fields":{
+			"name": "TestBuild245",
+			"metadata":[2, 4, 5]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 5,
+		"fields":{
+			"name": "TestBuild136",
+			"metadata":[1, 3, 6]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 6,
+		"fields":{
+			"name": "TestBuild146",
+			"metadata":[1, 4, 6]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 7,
+		"fields":{
+			"name": "TestBuild236",
+			"metadata":[2, 3, 6]
+		}
+	},
+	{
+		"model": "datastore.Build",
+		"pk": 8,
+		"fields":{
+			"name": "TestBuild246",
+			"metadata":[2, 4, 6]
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 1,
+		"fields":{
+			"download_url": "http://download.com/1",
+			"build": 1,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 2,
+		"fields":{
+			"download_url": "http://download.com/2",
+			"build": 2,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 3,
+		"fields":{
+			"download_url": "http://download.com/3",
+			"build": 3,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 4,
+		"fields":{
+			"download_url": "http://download.com/4",
+			"build": 4,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 5,
+		"fields":{
+			"download_url": "http://download.com/5",
+			"build": 5,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 6,
+		"fields":{
+			"download_url": "http://download.com/6",
+			"build": 6,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 7,
+		"fields":{
+			"download_url": "http://download.com/7",
+			"build": 7,
+			"a_type": 1
+		}
+	},
+	{
+		"model": "datastore.Artifact",
+		"pk": 8,
+		"fields":{
+			"download_url": "http://download.com/8",
+			"build": 8,
+			"a_type": 1
+		}
+	}
+]

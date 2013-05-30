@@ -127,6 +127,7 @@ INSTALLED_APPS = (
     'datastore',
     'south',
     'registration',
+    'frontend',
     'django.contrib.admin',
     'django.contrib.admindocs',
 )

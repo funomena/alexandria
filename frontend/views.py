@@ -15,7 +15,10 @@ def index(request):
 @login_required
 def latest(request):
 	latest_build = Build.objects.latest('created')
-	latest_starred = Build.objects.filter(starred=True).latest('created')
+	try:
+		latest_starred = Build.objects.filter(starred=True).latest('created')
+	except Exception as e:
+		latest_starred = None
 	return TemplateResponse(request, 'latest.html', {'latest_build': latest_build, 'latest_starred': latest_starred})
 
 
@@ -31,9 +34,8 @@ def build_page(request, build_id):
 	artifacts = Artifact.objects.filter(	a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE,
 											build__id=build_id)
 
-	metadata_set = MetaData.objects.filter(category__is_extra_data=False, build_id=build_id)
-	extra_data_set = MetaData.objects.filter(category__is_extra_data=True, build_id=build_id)
-	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': metadata_set, 'extra_data_set': extra_data_set})
+	extra_data_set = ExtraDataValue.objects.filter(build_id=build_id)
+	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
 
 
 @login_required
@@ -47,7 +49,7 @@ def build_list_page(request):
 
 @login_required
 def build_filter_page(request):
-	all_metadata_categories = MetaDataCategory.objects.filter(is_extra_data=False)
+	all_metadata_categories = MetaDataCategory.objects.all()
 	return TemplateResponse(request, 'filter_page.html', {'categories': all_metadata_categories})
 
 

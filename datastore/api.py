@@ -188,10 +188,7 @@ class ArtifactResource(EmuBabyResource):
 	def dehydrate(self, bundle):
 		dehydrated_data = {'type_name': bundle.data['a_type'].data['friendly_name'], 'download_url': bundle.data['download_url'], 'resource_uri': bundle.data['resource_uri']}
 		return dehydrated_data
-
-
-	def hydrate(self, bundle):
-		return bundle
+		
 
 	class Meta:
 		queryset = Artifact.objects.all()

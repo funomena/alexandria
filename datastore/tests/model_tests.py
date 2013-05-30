@@ -23,6 +23,12 @@ class ModelTests(TestCase):
 		self.assertEqual(c.slug, "test-category")
 
 
+	def test_extra_data_type_auto_slugify(self):
+		t = ExtraDataType.objects.get(pk=1)
+		t.save()
+		self.assertEqual(t.slug, "test-extra-data-type")
+
+
 	def test_artifact_type_unicode_is_name(self):
 		t = ArtifactType.objects.get(pk=1)
 		self.assertEqual("Test Type", unicode(t))

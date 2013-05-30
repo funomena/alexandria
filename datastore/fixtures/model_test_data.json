@@ -30,6 +30,22 @@
 		}
 	},
 	{
+		"model": "datastore.ExtraDataType",
+		"pk": 1,
+		"fields":{
+			"friendly_name": "Test Extra Data Type"
+		}
+	},
+	{
+		"model": "datastore.ExtraDataValue",
+		"pk": 1,
+		"fields":{
+			"value": "ExtraData1",
+			"ed_type": 1,
+			"build": 1
+		}
+	},
+	{
 		"model": "datastore.Artifact",
 		"pk": 1,
 		"fields":{

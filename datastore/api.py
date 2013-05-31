@@ -64,17 +64,27 @@ class MetaDataResource(EmuBabyResource):
 		return builds
 
 
+	# Not needed, but here for clarity
+	def hydrate_builds(self, bundle):
+		return bundle
+
+
 	def dehydrate_category(self, bundle):
 		return bundle.obj.category.friendly_name
+
+
+	def hydrate_category(self, bundle):
+		cat = MetaDataCategory.objects.get(friendly_name=bundle.data["category"])
+		bundle.data['category'] = cat
+		return bundle
 
 
 	def dehydrate_slug(self, bundle):
 		return bundle.obj.category.slug
 
 
-	def hydrate_category(self, bundle):
-		cat = MetaDataCategory.objects.get(friendly_name=bundle.data["category"])
-		bundle.data['category'] = cat
+	# Not needed, but here for clarity
+	def hydrate_slug(self, bundle):
 		return bundle
 
 

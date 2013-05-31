@@ -1,6 +1,6 @@
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
-from emubaby.settings import ORG_NAME
+from django.conf import settings
 from datastore.models import *
 from datastore.utils import get_build_query_set
 
@@ -9,7 +9,7 @@ from datastore.utils import get_build_query_set
 def index(request):
 	num_builds = Build.objects.count()
 	num_accessible_builds = Build.objects.count()
-	return TemplateResponse(request, 'index.html', {'org_name': ORG_NAME, 'num_builds': num_builds, 'accessible_builds': num_accessible_builds})
+	return TemplateResponse(request, 'index.html', {'org_name': settings.ORG_NAME, 'num_builds': num_builds, 'accessible_builds': num_accessible_builds})
 
 
 @login_required

@@ -66,6 +66,7 @@ class MetaDataResource(EmuBabyResource):
 
 	# Not needed, but here for clarity
 	def hydrate_builds(self, bundle):
+		bundle.data['builds'] = Build.objects.filter(metadata__id=bundle.obj.id)
 		return bundle
 
 

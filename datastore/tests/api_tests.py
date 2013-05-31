@@ -12,6 +12,36 @@ import urllib
 class APITests(AuthenticatedTestCase):
 	fixtures = ['api_test_data']
 
+	def setUp(self):
+		super(APITests, self).setUp()
+		self.build_data_with_all_new_meta = {
+			"metadata": [
+							{"category": "Test Category", "value": "MetaDataValue2"},
+							{"category": "Test Category 2", "value": "OtherMetaDataValue2"}
+						],
+			"extra_data":	[
+								{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+							]
+		}
+		self.build_data_with_some_new_meta = {
+			"metadata": [
+							{"category": "Test Category", "value": "MetaDataValue2"},
+							{"category": "Test Category 2", "value": "OtherMetaDataValue1"}
+						],
+			"extra_data":	[
+								{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+							]
+		}
+		self.build_data_with_no_new_meta = {
+			"metadata": [
+							{"category": "Test Category", "value": "MetaDataValue1"},
+							{"category": "Test Category 2", "value": "OtherMetaDataValue1"}
+						],
+			"extra_data":	[
+								{"ed_type": "Test Extra Data", "value": "ExtraData2"}
+							]
+		}
+
 	def test_api_exists_at_expected_url(self):
 		r = self.client.get(self.api_prefix, data={'format':'json'})
 		self.assertNotIsInstance(r, HttpResponseNotFound)
@@ -154,64 +184,33 @@ class APITests(AuthenticatedTestCase):
 		self.assertIn('resource_uri', installer)
 
 
-	def test_post_build_creates_and_returns_build_data(self):
-		initial_num_meta_datas = len(MetaData.objects.all())
-		post_data = {}
-		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue2"}
-								]
-		post_data["extra_data"] = 	[
-										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
-									]
-		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
-		self.assertEquals(p.status_code, 201)
-		post_returned_data = json.loads(p.content)
-		self.assertIn('id', post_returned_data)
-		self.assertEquals(len(post_returned_data['metadata']), 1)
-
-		r = self.client.get(self.api_prefix + "build/" + str(post_returned_data['id']) + "/", data=self.valid_auth_params)
-		retrieved_data = json.loads(r.content)
-		metadata = retrieved_data['metadata'][0]
-		self.assertEquals(metadata['category'], "Test Category")
-		self.assertEquals(metadata['value'], "MetaDataValue2")
-		self.assertEquals(len(metadata['builds']), 1)
-
-
 	def test_post_build_accepts_and_creates_new_metadata(self):
+		# Make sure we create 2 new metadata objects on the backend
 		initial_num_meta_datas = len(MetaData.objects.all())
-		post_data = {}
-		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue2"}
-								]
-		post_data["extra_data"] = 	[
-										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
-									]
-		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_all_new_meta, content_type='application/json', authentication=self.api_auth)
 		self.assertEquals(p.status_code, 201)
 
 		r = self.client.get(self.api_prefix + "build/", data=self.valid_auth_params)
 		data = json.loads(r.content)
+
+		# Make sure we made a build
 		self.assertEquals(data['meta']['total_count'], 2)
 
 		# Test if the post created a new metadata value
-		self.assertEquals(len(MetaData.objects.all()), initial_num_meta_datas + 1)
+		self.assertEquals(len(MetaData.objects.all()), initial_num_meta_datas + 2)
 
 		#Sanity check to see if the API catches the new values
 		m = self.client.get(self.api_prefix + "metadata/", data=self.valid_auth_params)
 		data = json.loads(m.content)
-		self.assertEquals(initial_num_meta_datas + 1, data['meta']['total_count'])
+		self.assertEquals(initial_num_meta_datas + 2, data['meta']['total_count'])
 
 
 	def test_post_build_accepts_and_uses_existing_metadata(self):
+		# Make sure we don't create any new metadata on the backend
 		initial_num_meta_datas = len(MetaData.objects.all())
-		post_data = {}
-		post_data["metadata"] = [
-									{"category": "Test Category", "value": "MetaDataValue1"}
-								]
-		post_data["extra_data"] = 	[
-										{"ed_type": "Test Extra Data", "value": "ExtraData2"}
-									]
-		p = self.api_client.post(self.api_prefix + "build/", data=post_data, content_type='application/json', authentication=self.api_auth)
+
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_no_new_meta, content_type='application/json', authentication=self.api_auth)
 		self.assertEquals(p.status_code, 201)
 
 		# Test if the post created a new metadata value
@@ -223,15 +222,54 @@ class APITests(AuthenticatedTestCase):
 		self.assertEquals(initial_num_meta_datas, data['meta']['total_count'])
 
 
+	def test_post_build_creates_and_returns_build_data(self):
+
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_some_new_meta, content_type='application/json', authentication=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+		post_returned_data = json.loads(p.content)
+
+		# Make sure the returned build contains an id
+		self.assertIn('id', post_returned_data)
+		# Make sure the metadata got associated correctly
+		self.assertEquals(len(post_returned_data['metadata']), 2)
+
+		# Make sure the returned id is correct
+		r = self.client.get(self.api_prefix + "build/" + str(post_returned_data['id']) + "/", data=self.valid_auth_params)
+		retrieved_data = json.loads(r.content)
+		metadata = retrieved_data['metadata'][0]
+		self.assertEquals(metadata['category'], "Test Category")
+		self.assertEquals(metadata['value'], "MetaDataValue2")
+
+
 	def test_build_can_be_starred_with_PATCH_request(self):
 		# Sanity check that the build starts out not starred
 		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(data['starred'], False)
 
+		# Patch and test
 		p = self.api_client.patch(self.api_prefix + "build/1/", data={'starred': True}, content_type='application/json', authentication=self.api_auth)
 		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(data['starred'], True)
 
+
+	def test_created_metadatas_have_correct_builds(self):
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_some_new_meta, content_type='application/json', authentication=self.api_auth)
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_all_new_meta, content_type='application/json', authentication=self.api_auth)
+
+		# There should be 2 builds with MetaDataValue2
+		r = self.api_client.get(self.api_prefix + "metadata/test-category/MetaDataValue2/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+		self.assertEquals(len(data['builds']), 2)
+
+
+	def test_updated_metadatas_have_correct_builds(self):
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_some_new_meta, content_type='application/json', authentication=self.api_auth)
+		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_no_new_meta, content_type='application/json', authentication=self.api_auth)
+
+		# There should be 3 builds with MetaDataValue1
+		r = self.api_client.get(self.api_prefix + "metadata/test-category/MetaDataValue1/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+		self.assertEquals(len(data['builds']), 3)
 

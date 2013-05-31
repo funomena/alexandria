@@ -8,6 +8,14 @@
 		}
 	},
 	{
+		"model": "datastore.MetaDataCategory",
+		"pk": 2,
+		"fields":{
+			"friendly_name": "Test Category 2",
+			"slug": "test-category"
+		}
+	},
+	{
 		"model": "datastore.ExtraDataType",
 		"pk": 1,
 		"fields":{
@@ -40,6 +48,14 @@
 		"pk": 1,
 		"fields":{
 			"value": "MetaDataValue1",
+			"category": 1
+		}
+	},
+	{
+		"model": "datastore.MetaData",
+		"pk": 1,
+		"fields":{
+			"value": "OtherMetaDataValue1",
 			"category": 1
 		}
 	},

@@ -5,7 +5,7 @@
 	<div class="span6">
 		<h3>{{build.name}}</h3>
 		<h4>Created: {{build.created}}</h4>
-		<a href="#" class="btn btn-warning{% if build.starred %} active{% endif %}"><i class="icon-star{% if build.starred %} icon-white{% endif %}"></i></a>
+		<a href="#" id="starbtn" class="btn btn-warning{% if build.starred %} active{% endif %}"><i class="icon-star{% if build.starred %} icon-white{% endif %}"></i></a>
 	</div>
 	<div class="span6">
 		<h5>Metadata</h5>
@@ -58,4 +58,29 @@
 		</table>
 	</div>
 </div>
+{% endblock %}
+
+{% block pagescripts %}
+<script type="text/javascript">
+$("#starbtn").click( function(){
+	var active = $("#starbtn").hasClass('active');
+	$.ajax(
+		{
+			url: "{{ api_endpoint }}?username={{ user.username }}&api_key={{ user.api_key.key }}&format=json", 
+			data:{'starred': !active}, 
+			type:'PATCH',
+			success: function(){
+				if(active){
+					$("#starbtn").removeClass('active');
+				} else {
+					$("#starbtn").addClass('active');
+				}
+			},
+			error: function(){
+				alert("WE DONE GOOFED!");
+			}
+		}
+	);
+});
+</script>
 {% endblock %}

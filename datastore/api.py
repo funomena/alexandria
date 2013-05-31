@@ -33,6 +33,8 @@ class MetaDataResource(EmuBabyResource):
 
 	builds = fields.ToManyField('datastore.api.BuildResource', 'builds', related_name='metadata', blank=True, null=True)
 
+	slug = fields.CharField()
+
 
 	def prepend_urls(self):
 		return [
@@ -55,17 +57,24 @@ class MetaDataResource(EmuBabyResource):
 		return "%s%s/%s/" % (url, slug, val)
 
 
-	def dehydrate(self, bundle):
+	def dehydrate_builds(self, bundle):
 		builds = []
 		for b in Build.objects.filter(metadata__id=bundle.obj.id):
 			builds.append(b.id)
-		dehydrated_data = {'value': bundle.obj.value, 'category': bundle.obj.category.friendly_name, 'slug':bundle.obj.category.slug, 'builds': builds, 'resource_uri': self.get_resource_uri(bundle)}
-		return dehydrated_data
+		return builds
 
 
-	def hydrate(self, bundle):
-		cat, created = MetaDataCategory.objects.get_or_create(friendly_name=bundle.data["category"])
-		bundle.data["category"] = cat
+	def dehydrate_category(self, bundle):
+		return bundle.obj.category.friendly_name
+
+
+	def dehydrate_slug(self, bundle):
+		return bundle.obj.category.slug
+
+
+	def hydrate_category(self, bundle):
+		cat = MetaDataCategory.objects.get(friendly_name=bundle.data["category"])
+		bundle.data['category'] = cat
 		return bundle
 
 
@@ -97,14 +106,16 @@ class ExtraDataValueResource(EmuBabyResource):
 
 	build = fields.ToOneField('datastore.api.BuildResource', 'build')
 
-	def dehydrate(self, bundle):
-		dehydrated_data = {'value': bundle.obj.value, 'type': bundle.obj.ed_type.friendly_name}
-		return dehydrated_data
 
-	def hydrate(self, bundle):
+	def dehydrate_ed_type(self, bundle):
+		return bundle.obj.ed_type.friendly_name
+
+
+	def hydrate_ed_type(self, bundle):
 		ed_type = ExtraDataType.objects.get(friendly_name=bundle.data['ed_type'])
 		bundle.data['ed_type'] = ed_type
 		return bundle
+
 
 	class Meta:
 		queryset = ExtraDataValue.objects.all()
@@ -113,6 +124,7 @@ class ExtraDataValueResource(EmuBabyResource):
 			'ed_type': ALL_WITH_RELATIONS,
 			'build': ALL_WITH_RELATIONS
 		}
+		include_resource_uri = False
 		
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
@@ -123,22 +135,7 @@ class BuildResource(EmuBabyResource):
 
 	extra_data = fields.ToManyField(ExtraDataValueResource, 'extra_data', related_name='build', null=True, blank=True, use_in='detail', full=True, full_detail=True)
 
-	installers = fields.ToManyField('datastore.api.ArtifactResource', 
-									attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id).exclude(a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE),
-									null=True,
-									blank=True,
-									use_in='detail',
-									full=True,
-									full_detail=True)
-
-	other_artifacts = fields.ToManyField('datastore.api.ArtifactResource', 
-										attribute=lambda bundle: Artifact.objects.filter(build__id=bundle.obj.id, 
-																						a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE), 
-										null=True,
-										blank=True,
-										use_in='detail',
-										full=True,
-										full_detail=True)
+	artifacts = fields.ToManyField('datastore.api.ArtifactResource', 'artifacts', null=True, blank=True, use_in='detail', full=True, full_detail=True)
 
 	name = fields.CharField(blank=True, null=True, attribute='name')
 
@@ -161,6 +158,7 @@ class BuildResource(EmuBabyResource):
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 		always_return_data = True
+		allowed_methods = ['get', 'post', 'patch']
 
 
 class ArtifactTypeResource(EmuBabyResource):
@@ -171,30 +169,48 @@ class ArtifactTypeResource(EmuBabyResource):
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()
 		filtering = {
-			'installer_type': ALL
+			'installer_type': ALL,
+			'slug': ALL
 		}
 
 
 class ArtifactResource(EmuBabyResource):
 	a_type = fields.ForeignKey(ArtifactTypeResource, 'a_type', full=True, full_detail=True)
 
+	build = fields.ToOneField(BuildResource, 'build')
 
 	def prepend_urls(self):
 		return [
-			url(r"^(?P<resource_name>%s)/(?P<a_type__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="a_type_slug_dispatch_detail"),
+			url(r"^(?P<resource_name>%s)/(?P<a_type__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="a_type_slug_dispatch_list"),
+			url(r"^(?P<resource_name>%s)/(?P<a_type__slug>[\w\d_.-]+)/(?P<id>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="a_type_slug_dispatch_detail"),
 		]
 
+	def dehydrate_a_type(self, bundle):
+		return bundle.obj.a_type.friendly_name
 
-	def dehydrate(self, bundle):
-		dehydrated_data = {'type_name': bundle.data['a_type'].data['friendly_name'], 'download_url': bundle.data['download_url'], 'resource_uri': bundle.data['resource_uri']}
-		return dehydrated_data
-		
+
+	def hydrate_a_type(self, bundle):
+		a_type = ArtifactType.objects.get(friendly_name=bundle.data['type'])
+		bundle.data['a_type'] = a_type
+		return bundle
+
+
+	def dehydrate_build(self, bundle):
+		return bundle.obj.build.id
+
+
+	def hydrate_build(self, bundle):
+		b = Build.objects.get(id = bundle.data['build'])
+		bundle.data['build'] = b
+		return bundle
+
 
 	class Meta:
 		queryset = Artifact.objects.all()
 		resource_name = 'artifact'
 		filtering = {
-			'a_type': ALL_WITH_RELATIONS
+			'a_type': ALL_WITH_RELATIONS,
+			'build': ALL_WITH_RELATIONS
 		}
 		
 		authorization = Authorization()

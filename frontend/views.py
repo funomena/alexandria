@@ -35,7 +35,7 @@ def build_page(request, build_id):
 											build__id=build_id)
 
 	extra_data_set = ExtraDataValue.objects.filter(build_id=build_id)
-	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'artifacts': artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
+	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
 
 
 @login_required

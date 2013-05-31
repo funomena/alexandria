@@ -130,6 +130,7 @@ INSTALLED_APPS = (
     'frontend',
     'django.contrib.admin',
     'django.contrib.admindocs',
+    'django_extensions',
 )
 
 # A sample logging configuration. The only tangible logging

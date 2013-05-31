@@ -20,6 +20,7 @@
 		"pk": 1,
 		"fields":{
 			"friendly_name": "Test Installer",
+			"slug": "test-installer",
 			"installer_type": "NORMAL INSTALLER",
 			"extension": ".test"
 		}
@@ -29,6 +30,7 @@
 		"pk": 2,
 		"fields":{
 			"friendly_name": "Test Other Artifact",
+			"slug": "test-other-artifact",
 			"installer_type": "NOT INSTALLER",
 			"extension": ".test"
 		}

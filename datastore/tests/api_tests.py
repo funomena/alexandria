@@ -49,19 +49,12 @@ class APITests(AuthenticatedTestCase):
 			}
 			...
 		],
-		'installers': [
-			{
-				'type_name': string,
-				'download_url': string,
-				'resource_uri': string			
-			}
-			...
-		],
 		'other_artifacts':[
 			{
-				'type_name': string,
+				'type': string,
 				'download_url': string,
-				'resource_uri': string			
+				'resource_uri': string,
+				'installer_type': string			
 			}
 			...
 		]
@@ -141,41 +134,24 @@ class APITests(AuthenticatedTestCase):
 		self.assertEquals(1, len(data['extra_data']))
 
 		extra_data = data['extra_data'][0]
-		self.assertIn('type', extra_data)
+		self.assertIn('ed_type', extra_data)
 		self.assertIn('value', extra_data)
 		self.assertNotIn('resource_uri', extra_data)
 
-		self.assertEquals(extra_data['type'], "Test Extra Data")
+		self.assertEquals(extra_data['ed_type'], "Test Extra Data")
 
 
-	def test_build_get_detail_has_valid_installer_list(self):
+	def test_build_get_detail_has_valid_artifact_list(self):
 		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 
-		self.assertIn('installers', data)
-		self.assertEquals(1, len(data['installers']))
+		self.assertIn('artifacts', data)
+		self.assertEquals(2, len(data['artifacts']))
 
-		installer = data['installers'][0]
-		self.assertIn('type_name', installer)
+		installer = data['artifacts'][0]
+		self.assertIn('a_type', installer)
 		self.assertIn('download_url', installer)
 		self.assertIn('resource_uri', installer)
-
-		self.assertEquals(installer['type_name'], "Test Installer")
-
-
-	def test_build_get_detail_has_valid_other_artifact_list(self):
-		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
-		data = json.loads(r.content)
-
-		self.assertIn('other_artifacts', data)
-		self.assertEquals(1, len(data['other_artifacts']))
-
-		other_artifact = data['other_artifacts'][0]
-		self.assertIn('type_name', other_artifact)
-		self.assertIn('download_url', other_artifact)
-		self.assertIn('resource_uri', other_artifact)
-
-		self.assertEquals(other_artifact['type_name'], "Test Other Artifact")
 
 
 	def test_post_build_creates_and_returns_build_data(self):
@@ -198,6 +174,7 @@ class APITests(AuthenticatedTestCase):
 		metadata = retrieved_data['metadata'][0]
 		self.assertEquals(metadata['category'], "Test Category")
 		self.assertEquals(metadata['value'], "MetaDataValue2")
+		self.assertEquals(len(metadata['builds']), 1)
 
 
 	def test_post_build_accepts_and_creates_new_metadata(self):
@@ -244,4 +221,17 @@ class APITests(AuthenticatedTestCase):
 		m = self.client.get(self.api_prefix + "metadata/", data=self.valid_auth_params)
 		data = json.loads(m.content)
 		self.assertEquals(initial_num_meta_datas, data['meta']['total_count'])
+
+
+	def test_build_can_be_starred_with_PATCH_request(self):
+		# Sanity check that the build starts out not starred
+		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+		self.assertEquals(data['starred'], False)
+
+		p = self.api_client.patch(self.api_prefix + "build/1/", data={'starred': True}, content_type='application/json', authentication=self.api_auth)
+		r = self.client.get(self.api_prefix + "build/1/", data=self.valid_auth_params)
+		data = json.loads(r.content)
+		self.assertEquals(data['starred'], True)
+
 

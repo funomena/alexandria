@@ -164,6 +164,8 @@ LOGGING = {
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
+ORG_NAME=os.environ.get("ORG_NAME", "MindSnacks")
+
 if os.environ.get("HEROKU_DEPLOY", False):
         
 

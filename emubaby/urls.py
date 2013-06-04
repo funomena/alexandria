@@ -1,4 +1,5 @@
 from django.conf.urls import *
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from tastypie.api import Api
 from datastore.api import *
 import frontend.views
@@ -26,3 +27,5 @@ urlpatterns = patterns('',
 	(r'accounts/', include('registration.backends.default.urls')),
 	(r'accounts/profile/', frontend.views.profile_page)
 )
+
+urlpatterns += staticfiles_urlpatterns()

@@ -17,6 +17,11 @@ EMAIL_PORT = 1025
 
 ORG_NAME = "MindSnacks"
 
-TEST_RUNNER = 'rainbowtests.RainbowTestSuiteRunner'
+try:
+	import rainbowtests
+except ImportError, e:
+	pass
+else:
+	TEST_RUNNER = 'rainbowtests.RainbowTestSuiteRunner'
 
 SOUTH_TESTS_MIGRATE = False

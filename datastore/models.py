@@ -45,7 +45,7 @@ class Build(models.Model):
 	starred = models.BooleanField(default=False)
 
 	def __unicode__(self):
-		return self.name
+		return unicode(self.name)
 
 
 class ExtraDataType(models.Model):

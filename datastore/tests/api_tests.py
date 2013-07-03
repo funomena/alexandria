@@ -272,4 +272,3 @@ class APITests(AuthenticatedTestCase):
 		r = self.api_client.get(self.api_prefix + "metadata/test-category-2/OtherMetaDataValue1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(len(data['builds']), 3)
-

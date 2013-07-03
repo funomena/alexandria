@@ -78,3 +78,54 @@ class FilterTests(AuthenticatedTestCase):
 		build = data['objects'][0]
 
 		self.assertEquals(build['name'], "TestBuild136")
+
+
+	def test_metadata_filter_by_category_1_is_metadata_11_contains_5_metadatas(self):
+		get_params = self.valid_auth_params
+		get_params['category-1'] = 'MetaDataValue11'
+		r = self.client.get(self.api_prefix + "metadata/", data=get_params)
+		data = json.loads(r.content)
+
+		self.assertEquals(data['meta']['total_count'], 5)
+		for obj in data['objects']:
+			self.assertNotEquals(obj['id'], 2)
+
+
+	def test_metadata_filter_by_category_2_is_metadata_21_contains_5_metadatas(self):
+		get_params = self.valid_auth_params
+		get_params['category-2'] = 'MetaDataValue21'
+		r = self.client.get(self.api_prefix + "metadata/", data=get_params)
+		data = json.loads(r.content)
+
+		self.assertEquals(data['meta']['total_count'], 5)
+		for obj in data['objects']:
+			self.assertNotEquals(obj['id'], 4)
+
+
+	def test_metadata_filter_by_category_1_is_metadata_11_and_category_2_is_metadata_21_contains_4_metadatas(self):
+		get_params = self.valid_auth_params
+		get_params['category-1'] = 'MetaDataValue11'
+		get_params['category-2'] = 'MetaDataValue21'
+		r = self.client.get(self.api_prefix + "metadata/", data=get_params)
+		data = json.loads(r.content)
+
+		self.assertEquals(data['meta']['total_count'], 4)
+		for obj in data['objects']:
+			self.assertNotEquals(obj['id'], 2)
+			self.assertNotEquals(obj['id'], 4)
+
+
+	def test_metadata_filter_by_category_1_is_metadata_11_and_category_2_is_metadata_21_and_category_3_is_metadata_32_contains_3_metadatas(self):
+		get_params = self.valid_auth_params
+		get_params['category-1'] = 'MetaDataValue11'
+		get_params['category-2'] = 'MetaDataValue21'
+		get_params['category-3'] = 'MetaDataValue32'
+		r = self.client.get(self.api_prefix + "metadata/", data=get_params)
+		data = json.loads(r.content)
+
+		self.assertEquals(data['meta']['total_count'], 3)
+		for obj in data['objects']:
+			self.assertNotEquals(obj['id'], 2)
+			self.assertNotEquals(obj['id'], 4)
+			self.assertNotEquals(obj['id'], 5)
+

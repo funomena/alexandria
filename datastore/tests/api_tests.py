@@ -134,7 +134,7 @@ class APITests(AuthenticatedTestCase):
 		data = json.loads(r.content)
 
 		self.assertIn('metadata', data)
-		self.assertEquals(1, len(data['metadata']))
+		self.assertEquals(2, len(data['metadata']))
 
 		metadata = data['metadata'][0]
 		self.assertIn('category', metadata)
@@ -236,7 +236,7 @@ class APITests(AuthenticatedTestCase):
 		# Make sure the returned id is correct
 		r = self.client.get(self.api_prefix + "build/" + str(post_returned_data['id']) + "/", data=self.valid_auth_params)
 		retrieved_data = json.loads(r.content)
-		metadata = retrieved_data['metadata'][0]
+		metadata = retrieved_data['metadata'][1]
 		self.assertEquals(metadata['category'], "Test Category")
 		self.assertEquals(metadata['value'], "MetaDataValue2")
 
@@ -269,7 +269,7 @@ class APITests(AuthenticatedTestCase):
 		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_no_new_meta, content_type='application/json', authentication=self.api_auth)
 
 		# There should be 3 builds with MetaDataValue1
-		r = self.api_client.get(self.api_prefix + "metadata/test-category/MetaDataValue1/", data=self.valid_auth_params)
+		r = self.api_client.get(self.api_prefix + "metadata/test-category-2/OtherMetaDataValue1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(len(data['builds']), 3)
 

@@ -12,7 +12,7 @@
 		"pk": 2,
 		"fields":{
 			"friendly_name": "Test Category 2",
-			"slug": "test-category"
+			"slug": "test-category-2"
 		}
 	},
 	{
@@ -53,10 +53,10 @@
 	},
 	{
 		"model": "datastore.MetaData",
-		"pk": 1,
+		"pk": 2,
 		"fields":{
 			"value": "OtherMetaDataValue1",
-			"category": 1
+			"category": 2
 		}
 	},
 	{
@@ -64,7 +64,7 @@
 		"pk": 1,
 		"fields":{
 			"name": "TestBuild1",
-			"metadata":[1]
+			"metadata":[1, 2]
 		}
 	},
 	{

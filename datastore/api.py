@@ -36,6 +36,22 @@ class MetaDataResource(EmuBabyResource):
 	slug = fields.CharField()
 
 
+	def apply_filters(self, request, applicable_filters):
+		base_list = super(MetaDataResource, self).apply_filters(request, applicable_filters)
+
+		q_list = get_build_query_set(request.GET, Build.objects.all())
+
+		if q_list is None:
+			return base_list
+		else:
+			metadata_ids = []
+			for build in q_list:
+				for meta in build.metadata.all():
+					if not meta.pk in metadata_ids:
+						metadata_ids.append(meta.pk)
+			return MetaData.objects.filter(pk__in=metadata_ids)
+
+
 	def prepend_urls(self):
 		return [
 			url(r"^(?P<resource_name>%s)/(?P<category__slug>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_list'), name="meta_category_slug_dispatch_detail"),

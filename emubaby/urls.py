@@ -4,7 +4,7 @@ from tastypie.api import Api
 from datastore.api import *
 import frontend.views
 
-api = Api(api_name='v1')
+api = Api(api_name='v0')
 api.register(BuildResource())
 api.register(MetaDataCategoryResource())
 api.register(MetaDataResource())

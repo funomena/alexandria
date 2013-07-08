@@ -15,6 +15,6 @@ class AuthenticatedTestCase(ResourceTestCase):
 		self.user = User.objects.create_user('timmygclef', 'timmygclef@example.com', 'secret')
 		self.client = Client()
 		self.api_key = ApiKey.objects.create(user=self.user)
-		self.api_prefix = "/api/v1/"
+		self.api_prefix = "/api/v0/"
 		self.valid_auth_params = {'format':'json', 'username': self.user.username, 'api_key':self.api_key.key}
 		self.api_auth = self.create_apikey(self.user.username, self.api_key.key)

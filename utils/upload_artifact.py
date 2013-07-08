@@ -43,12 +43,12 @@ if not args.pass_through:
 
 	post_data = {'type': args.artifact_type, 'build': args.build_id, 'download_url': dl_url, 'username': args.username, 'api_key': args.api_key, 'format':'json'}
 
-	print json.dumps(post_data)
-
 	post_url = args.host + "api/v0/artifact/?username=%s&api_key=%s" % (args.username, args.api_key)
 
 	print "Posting artifact..."
 	r = requests.post(post_url, data=json.dumps(post_data), headers={'content-type':'application/json'})
-	print r.status_code
-	print r.text
+	if r.status_code <= 400:
+		print "Status code was: " + r.status_code
+		print "Post returned: \n" + r.text
+		exit(1)
 	print "Done"

@@ -165,3 +165,7 @@ LOGGING = {
 ACCOUNT_ACTIVATION_DAYS = 7
 
 ORG_NAME=os.environ.get("ORG_NAME", "MindSnacks")
+
+ORG_NAME=os.environ.get("S3_BUCKET", "alexandria-bucket")
+ORG_NAME=os.environ.get("AWS_ACCESS_KEY", "KEY")
+ORG_NAME=os.environ.get("AWS_ACCESS_SECRET", "SECRET")

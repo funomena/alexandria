@@ -26,7 +26,7 @@
 		<h5>Installers</h5>
 		<ul class="nav nav-tabs nav-stacked">
 			{% for installer in installers %}
-			<li><a href="{{installer.download_url}}">{{installer.a_type.friendly_name}}</a>
+			<li><a href="{{installer.download_url}}">{{installer.friendly_name}}</a>
 			{% endfor %}
 		</ul>
 	</div>
@@ -34,7 +34,7 @@
 		<h5>Other Artifacts</h5>
 		<ul class="nav nav-tabs nav-stacked">
 			{% for artifact in artifacts %}
-			<li><a href="{{artifact.download_url}}">{{artifact.a_type.friendly_name}}</a>
+			<li><a href="{{artifact.download_url}}">{{artifact.friendly_name}}</a>
 			{% endfor %}
 		</ul>
 	</div>

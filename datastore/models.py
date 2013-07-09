@@ -126,7 +126,10 @@ class Artifact(models.Model):
 	"""
 	a_type = models.ForeignKey(ArtifactType, related_name='instances')
 	build = models.ForeignKey(Build, related_name='artifacts')
-	download_url = models.CharField(max_length=128)
+	download_url = models.CharField(max_length=128, null=True)
+	is_secure = models.BooleanField(default=False)
+	secure_uuid = models.CharField(max_length=64, null=True)
+
 
 	def __unicode__(self):
 		return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)

@@ -1,8 +1,11 @@
 from django.template.response import TemplateResponse
+from django.http.response import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from datastore.models import *
 from datastore.utils import get_build_query_set
+import boto
+from boto.s3.key import Key
 
 
 @login_required
@@ -26,16 +29,20 @@ def latest(request):
 def build_page(request, build_id):
 	build = Build.objects.get(id=build_id)
 
-	installers = Artifact.objects.filter(	a_type__installer_type__in=[ArtifactType.INSTALLER_TYPE_NORMAL,
-																	ArtifactType.INSTALLER_TYPE_IPHONE,
-																	ArtifactType.INSTALLER_TYPE_ANDROID],
-											build__id=build_id)
+	all_artifacts = Artifact.objects.filter(build_id=build_id)
 
-	artifacts = Artifact.objects.filter(	a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE,
-											build__id=build_id)
+	installers = []
+	other_artifacts = []
+
+	for art in all_artifacts:
+		data_bundle = {'friendly_name': art.a_type.friendly_name, 'download_url': '/download/%s' % (art.pk)}
+		if art.a_type.installer_type == ArtifactType.INSTALLER_TYPE_NONE:
+			other_artifacts.append(data_bundle)
+		else:
+			installers.append(data_bundle)
 
 	extra_data_set = ExtraDataValue.objects.filter(build_id=build_id)
-	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
+	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': other_artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
 
 
 @login_required
@@ -57,3 +64,19 @@ def build_filter_page(request):
 def profile_page(request):
 	return TemplateResponse(request, 'profile_page.html', {'user': request.user})
 
+
+@login_required
+def artifact_download_redirect(request, a_id):
+	art = Artifact.objects.get(pk=a_id)
+	filename = "%s_%s%s" % (art.a_type.slug, art.build_id, art.a_type.extension)
+	if art.is_secure:
+		s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
+		bucket = s3.lookup(settings.S3_BUCKET)
+		if bucket is None:
+			return
+		key = bucket.lookup(art.secure_uuid)
+		return redirect(key.generate_url(30, response_headers={'Content-Disposition': 'attachment; filename=%s' % (filename)}))
+	else:
+		response = HttpResponseRedirect(art.download_url)
+		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)
+		return response

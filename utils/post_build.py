@@ -29,5 +29,7 @@ if r.status_code >= 400:
 	print "Post returned: \n" + r.text
 	exit(1)
 build_data = json.loads(r.content)
-os.environ["ALEXANDRIA_BUILD"] = str(build_data["id"])
+f = open('build_number', 'w')
+f.write(str(build_data["id"]))
+f.close()
 print "Done"

@@ -47,7 +47,7 @@ if not args.pass_through:
 
 	print "Posting artifact..."
 	r = requests.post(post_url, data=json.dumps(post_data), headers={'content-type':'application/json'})
-	if r.status_code <= 400:
+	if r.status_code >= 400:
 		print "Status code was: " + r.status_code
 		print "Post returned: \n" + r.text
 		exit(1)

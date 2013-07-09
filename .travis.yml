@@ -11,16 +11,7 @@ env:
         - AWS_UPLOAD_BUCKET="alexandria-build-logs"
 script: ./runtests.sh
 after_success:
-    - wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
-    - git remote add heroku git@heroku.com:alexandria-demo.git
-    - echo "Host heroku.com" >> ~/.ssh/config
-    - echo "   StrictHostKeyChecking no" >> ~/.ssh/config
-    - echo "   CheckHostIP no" >> ~/.ssh/config
-    - echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config 
-    - heroku keys:clear
-    - yes | heroku keys:add
-    - yes | git push heroku master
-    - heroku run python manage.py migrate --settings=emubaby.settings.heroku
+    - ./utils/travis_deploy.sh
     - tar -zcvf coverage-report.tar.gz htmlcov/
     - python utils/post_build.py "Build Number" $TRAVIS_BUILD_NUMBER "Branch" "$TRAVIS_BRANCH" "Commit" "$TRAVIS_COMMIT" -u upload -k $ALEXANDRIA_API_KEY --host http://alexandria-demo.herokuapp.com/ -n "Travis CI Build $TRAVIS_BUILD_NUMBER"
     - export

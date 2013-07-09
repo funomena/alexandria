@@ -19,7 +19,7 @@ metadatas = []
 for k, v in build_args.iteritems():
 	metadatas.append({'category': k, 'value': v})
 
-post_url = args.host + "api/v0/build/?username=%s&api_key=%s" % (args.username, args.api_key)\
+post_url = args.host + "api/v0/build/?username=%s&api_key=%s" % (args.username, args.api_key)
 
 print "Posting build..."
 r = requests.post(post_url, data=json.dumps({"metadata": metadatas}), headers={'content-type':'application/json'})
@@ -28,5 +28,5 @@ if r.status_code >= 400:
 	print "Post returned: \n" + r.text
 	exit(1)
 build_data = json.loads(r.content)
-os.environ["ALEXANDRIA_BUILD"] = build_data["id"]
+os.environ["ALEXANDRIA_BUILD"] = str(build_data["id"])
 print "Done"

@@ -20,7 +20,7 @@ post_url = args.host + "api/v0/build/?username=%s&api_key=%s" % (args.username, 
 print "Posting build..."
 r = requests.post(post_url, data=json.dumps(build_args), headers={'content-type':'application/json'})
 if r.status_code >= 400:
-	print "Status code was: " + r.status_code
+	print "Status code was: " + str(r.status_code)
 	print "Post returned: \n" + r.text
 	exit(1)
 build_data = json.loads(r.content)

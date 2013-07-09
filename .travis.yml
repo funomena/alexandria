@@ -6,7 +6,7 @@ env:
     global:
         - secure: "nQvQfDl3eV4yCJ0Wj/6lne+NEt2Qbgbs+zZ2yoNYCNJEu3X/GiNdeNJAiFyt\nh70c7kTkiIOZhDu8Ay0yfXBG6Ma68ATkdYjGD/wJmcKSeTiNYs0yLV/hHg6W\nc2+ifoIpi/J3edlJ9RRfTCVDhpWUBsp3fldTmYecN0WAiKENxyc="
         - secure: "ketT9pBflKhbTLxbcalBm8Vfw4VL0XAcmSgUkrepLXGqeGoNUITNr9dBmWUK\nx5fdzaFozs5asIkHInIZiTOXbylA2XPg+PuePt0t/H50QiBGuJuoNTdHJpiS\nrpNLIWQPoAmP5/NC646SrFQdtm0vKI55in7eEEk79+AD8JHyYUk="
-        - secure: "AjWChlO3v6TYxXzF5IvQpFI67LDHjvR0ARA440J0f59xuzKCJ6v6qMJ41BqT\nfl1PpT0gi08TVzVUQ+w9Ide2702f/o2+laIGZmrI8Em3q7LAgVuFIFYXn4eZ\nmxGcLujNDC0jplmzN/WBYGkqK5wP1ajspvIBPA9qlSp3JyJR6jI="
+        - secure: "aEpfmuapg2F0wnsmNgO1hj4VL2WRkt07QHUv29RqcWS3uIXWy06oX1BVTMAL\nz4Kcm9JTQKbH4m/DzKVLLnKktMUbrmXlsmme5QpZnivyiJhGjRQ9aZkH5Agq\nhGI/L0PAM5YmjINCI/FXIzNpiO9l4p/48PQDh0uR2MSOpmgfCWg="
         - secure: "AFFy6VlL/yo+bsUdEOoKNLAcEpzTawR5IP8aY/yQI6s0e6o0mQ5W37t5tXXy\nUfqFsjG/xSFTGNJdtVsKSSV3aFR2T3KnvhqgKiQ64GTlcwxAxoS4B5XJUFS3\ndpRYV0LBFmNX/Ml+Auwk1ijV0+/iB+90XEWXJ0FaPoAZ9HcY1d0="
         - AWS_UPLOAD_BUCKET="alexandria-build-logs"
 script: ./runtests.sh

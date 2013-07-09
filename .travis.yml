@@ -20,7 +20,7 @@ after_success:
     - heroku keys:clear
     - yes | heroku keys:add
     - yes | git push heroku master
-    - heroku run python manage.py migrate
+    - heroku run python manage.py migrate --settings=emubaby.settings.heroku
     - tar -zcvf coverage-report.tar.gz htmlcov/
-    - python utils/post_build.py "Build Number" $TRAVIS_BUILD_NUMBER "Branch" "$TRAVIS_BRANCH" "Commit" "$TRAVIS_COMMIT" -u upload -k $ALEXANDRIA_API_KEY
+    - python utils/post_build.py "Build Number" $TRAVIS_BUILD_NUMBER "Branch" "$TRAVIS_BRANCH" "Commit" "$TRAVIS_COMMIT" -u upload -k $ALEXANDRIA_API_KEY --host http://alexandria-demo.herokuapp.com/ 
     - python utils/upload_artifact.py "Coverage Report" coverage-report.tar.gz $ALEXANDRIA_BUILD upload $ALEXANDRIA_API_KEY --host http://alexandria-demo.herokuapp.com/ -k $AWS_ACCESS_KEY -s $AWS_ACCESS_SECRET -b $AWS_UPLOAD_BUCKET

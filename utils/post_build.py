@@ -2,6 +2,7 @@ import requests
 import argparse
 import json
 import itertools
+import os
 
 
 parser = argparse.ArgumentParser(description="Post a build to Alexandria")
@@ -22,4 +23,6 @@ if r.status_code <= 400:
 	print "Status code was: " + r.status_code
 	print "Post returned: \n" + r.text
 	exit(1)
+build_data = json.loads(r.content)
+os.environ["ALEXANDRIA_BUILD"] = r["id"]
 print "Done"

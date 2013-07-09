@@ -10,6 +10,7 @@ parser.add_argument('data_pairs', type=str, nargs='*')
 parser.add_argument('--host', type=str, default="http://localhost:8000/")
 parser.add_argument('-u', '--username', type=str)
 parser.add_argument('-k', '--api_key', type=str)
+parser.add_argument('-n', '--name', type=str)
 args = parser.parse_args()
 
 i = iter(args.data_pairs)
@@ -22,7 +23,7 @@ for k, v in build_args.iteritems():
 post_url = args.host + "api/v0/build/?username=%s&api_key=%s" % (args.username, args.api_key)
 
 print "Posting build..."
-r = requests.post(post_url, data=json.dumps({"metadata": metadatas}), headers={'content-type':'application/json'})
+r = requests.post(post_url, data=json.dumps({"metadata": metadatas, "name": args.name}), headers={'content-type':'application/json'})
 if r.status_code >= 400:
 	print "Status code was: " + str(r.status_code)
 	print "Post returned: \n" + r.text

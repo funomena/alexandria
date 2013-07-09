@@ -7,5 +7,5 @@ if [[ $TRAVIS_BRANCH == 'master' ]]
 	echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config 
 	heroku keys:clear
 	yes | heroku keys:add
-	heroku run python manage.py migrate --settings=emubaby.settings.heroku
+	heroku run python manage.py migrate --settings=alexandria.settings.heroku
 fi

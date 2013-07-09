@@ -1,4 +1,4 @@
-from emubaby.settings.base import *
+from alexandria.settings.base import *
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url

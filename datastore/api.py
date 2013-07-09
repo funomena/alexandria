@@ -11,12 +11,12 @@ from django.template.defaultfilters import slugify
 from datastore.utils import get_build_query_set
 import json
 
-class EmuBabyResource(ModelResource):
+class AlexandriaResource(ModelResource):
 	def determine_format(self, request):
 		return 'application/json'
 
 
-class MetaDataCategoryResource(EmuBabyResource):
+class MetaDataCategoryResource(AlexandriaResource):
 	class Meta:
 		queryset = MetaDataCategory.objects.all()
 		resource_name = 'metadatacategory'
@@ -27,7 +27,7 @@ class MetaDataCategoryResource(EmuBabyResource):
 		authentication = ApiKeyAuthentication()
 
 
-class MetaDataResource(EmuBabyResource):
+class MetaDataResource(AlexandriaResource):
 
 	category = fields.ForeignKey(MetaDataCategoryResource, 'category', full=True, full_detail=True)
 
@@ -116,7 +116,7 @@ class MetaDataResource(EmuBabyResource):
 		authentication = ApiKeyAuthentication()
 
 
-class ExtraDataTypeResource(EmuBabyResource):
+class ExtraDataTypeResource(AlexandriaResource):
 	class Meta:
 		queryset = ExtraDataType.objects.all()
 		resource_name = 'extradatatype'
@@ -127,7 +127,7 @@ class ExtraDataTypeResource(EmuBabyResource):
 		authentication = ApiKeyAuthentication()
 
 
-class ExtraDataValueResource(EmuBabyResource):
+class ExtraDataValueResource(AlexandriaResource):
 
 	ed_type = fields.ForeignKey(ExtraDataTypeResource, 'ed_type', full=True, full_detail=True)
 
@@ -157,7 +157,7 @@ class ExtraDataValueResource(EmuBabyResource):
 		authentication = ApiKeyAuthentication()
 
 
-class BuildResource(EmuBabyResource):
+class BuildResource(AlexandriaResource):
 	metadata = fields.ToManyField(MetaDataResource, 'metadata', related_name='builds', use_in='detail', full=True, full_detail=True)
 
 	extra_data = fields.ToManyField(ExtraDataValueResource, 'extra_data', related_name='build', null=True, blank=True, use_in='detail', full=True, full_detail=True)
@@ -206,7 +206,7 @@ class BuildResource(EmuBabyResource):
 		allowed_methods = ['get', 'post', 'patch']
 
 
-class ArtifactTypeResource(EmuBabyResource):
+class ArtifactTypeResource(AlexandriaResource):
 	class Meta:
 		queryset = ArtifactType.objects.all()
 		resource_name = 'artifacttype'
@@ -219,7 +219,7 @@ class ArtifactTypeResource(EmuBabyResource):
 		}
 
 
-class ArtifactResource(EmuBabyResource):
+class ArtifactResource(AlexandriaResource):
 	a_type = fields.ForeignKey(ArtifactTypeResource, 'a_type', full=True, full_detail=True)
 
 	build = fields.ToOneField(BuildResource, 'build')

@@ -15,10 +15,16 @@ args = parser.parse_args()
 i = iter(args.data_pairs)
 build_args = dict(itertools.izip(i, i))
 
+metadatas = []
+for k, v in build_args.iteritems():
+	metadatas.append({'category': k, 'value': v})
+
 post_url = args.host + "api/v0/build/?username=%s&api_key=%s" % (args.username, args.api_key)
 
+print metadatas
+
 print "Posting build..."
-r = requests.post(post_url, data=json.dumps({"metadata": build_args}), headers={'content-type':'application/json'})
+r = requests.post(post_url, data=json.dumps({"metadata": metadatas}), headers={'content-type':'application/json'})
 if r.status_code >= 400:
 	print "Status code was: " + str(r.status_code)
 	print "Post returned: \n" + r.text

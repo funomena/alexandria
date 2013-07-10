@@ -63,20 +63,3 @@ def build_filter_page(request):
 @login_required
 def profile_page(request):
 	return TemplateResponse(request, 'profile_page.html', {'user': request.user})
-
-
-@login_required
-def artifact_download_redirect(request, a_id):
-	art = Artifact.objects.get(pk=a_id)
-	filename = "%s_%s%s" % (art.a_type.slug, art.build_id, art.a_type.extension)
-	if art.is_secure:
-		s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
-		bucket = s3.lookup(settings.S3_BUCKET)
-		if bucket is None:
-			return
-		key = bucket.lookup(art.secure_uuid)
-		return redirect(key.generate_url(30, response_headers={'Content-Disposition': 'attachment; filename=%s' % (filename)}))
-	else:
-		response = HttpResponseRedirect(art.download_url)
-		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)
-		return response

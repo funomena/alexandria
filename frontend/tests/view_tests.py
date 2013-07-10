@@ -18,7 +18,7 @@ class ViewTests(TestCase):
 		url = '/'
 		self.client.logout()
 		r = self.client.get(url)
-		self.assertIsInstance(r, HttpResponseRedirect)
+		self.assertRedirects(r, '/accounts/login/?next=/')
 
 
 	def test_latest_page_returns_page(self):
@@ -31,7 +31,7 @@ class ViewTests(TestCase):
 		url = '/latest/'
 		self.client.logout()
 		r = self.client.get(url)
-		self.assertIsInstance(r, HttpResponseRedirect)
+		self.assertRedirects(r, '/accounts/login/?next=/latest/')
 
 
 	def test_latest_page_returns_page(self):
@@ -44,7 +44,7 @@ class ViewTests(TestCase):
 		url = '/build/1/'
 		self.client.logout()
 		r = self.client.get(url)
-		self.assertIsInstance(r, HttpResponseRedirect)
+		self.assertRedirects(r, '/accounts/login/?next=/build/1/')
 
 
 	def test_build_page_returns_page(self):
@@ -63,10 +63,18 @@ class ViewTests(TestCase):
 		url = '/filter/'
 		self.client.logout()
 		r = self.client.get(url)
-		self.assertIsInstance(r, HttpResponseRedirect)
+		self.assertRedirects(r, '/accounts/login/?next=/filter/')
 
 
 	def test_filter_page_returns_page(self):
 		url = '/filter/'
 		r = self.client.get(url)
 		self.assertEquals(r.status_code, 200)
+
+
+	def test_build_page_contains_secured_download_links(self):
+		url = '/build/1/'
+		r = self.client.get(url)
+		self.assertEquals(r.status_code, 200)
+		self.assertContains(r, "/download/1")
+		self.assertNotContains(r, "http://download.com/1")

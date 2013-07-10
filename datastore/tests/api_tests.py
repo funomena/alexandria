@@ -2,7 +2,7 @@ from datastore.models import *
 from tastypie.test import ResourceTestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.http.response import HttpResponseNotFound
+from django.http.response import HttpResponseNotFound, HttpResponseRedirect
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
 from datastore.tests.authenticated_tests import AuthenticatedTestCase
@@ -272,3 +272,10 @@ class APITests(AuthenticatedTestCase):
 		r = self.api_client.get(self.api_prefix + "metadata/test-category-2/OtherMetaDataValue1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(len(data['builds']), 3)
+
+
+	def test_download_urls_redirect_to_publicly_uploaded_files(self):
+		self.client.login(username=self.user.username, password=self.raw_password)
+		r = self.client.get("/download/1/")
+		self.assertIsInstance(r, HttpResponseRedirect)
+		self.assertEquals(r['Location'], "http://download.com/1")

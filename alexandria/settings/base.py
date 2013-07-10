@@ -1,5 +1,7 @@
 import os
-# Django settings for alexandria project.
+import djcelery
+
+djcelery.setup_loader()
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -131,6 +133,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions',
+    'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -169,3 +172,6 @@ ORG_NAME=os.environ.get("ORG_NAME", "MindSnacks")
 ORG_NAME=os.environ.get("S3_BUCKET", "alexandria-bucket")
 ORG_NAME=os.environ.get("AWS_ACCESS_KEY", "KEY")
 ORG_NAME=os.environ.get("AWS_ACCESS_SECRET", "SECRET")
+
+BROKER_URL = os.environ.get("CELERY_BROKER", 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", 'redis://localhost:6379/0')

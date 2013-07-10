@@ -279,3 +279,17 @@ class APITests(AuthenticatedTestCase):
 		r = self.client.get("/download/1/")
 		self.assertIsInstance(r, HttpResponseRedirect)
 		self.assertEquals(r['Location'], "http://download.com/1")
+
+
+	def test_uploading_artifacts_requires_auth(self):
+		upload_data = {'build_id': 1, 'type': 'Test Installer'}
+		files = {'payload': open('Procfile', 'rb')}
+		p = self.api_client.post("/upload/", data=upload_data, files=files, content_type='application/json')
+		self.assertEquals(p.status_code, 401)
+
+
+	def test_uploading_artifacts_returns_proper_reponse_code(self):
+		upload_data = {'build_id': 1, 'type': 'Test Installer'}
+		files = {'payload': open('Procfile', 'rb')}
+		p = self.api_client.post("/upload/", data=upload_data, authentication=self.api_auth, files=files, content_type='application/json')
+		self.assertEquals(p.status_code, 201)

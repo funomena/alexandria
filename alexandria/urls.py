@@ -3,6 +3,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from tastypie.api import Api
 from datastore.api import *
 import frontend.views
+import datastore.uploads
 
 api = Api(api_name='v0')
 api.register(BuildResource())
@@ -21,6 +22,8 @@ urlpatterns = patterns('',
 	url(r'^build/(?P<build_id>\d*)/', frontend.views.build_page, name='build'),
 	url(r'^builds/', frontend.views.build_list_page, name='build list'),
 	url(r'^filter/', frontend.views.build_filter_page, name='build filter'),
+	url(r'^download/(?P<a_id>\d*)/', datastore.uploads.artifact_download_redirect, name='download artifact'),
+	url(r'^upload/', datastore.uploads.recieve_upload, name='upload artifact'),
     (r'^api/', include(api.urls)),
 	url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 	url(r'^admin/', include(admin.site.urls)),

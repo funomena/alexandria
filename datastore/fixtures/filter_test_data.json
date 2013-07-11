@@ -165,7 +165,7 @@
 		"model": "datastore.Artifact",
 		"pk": 1,
 		"fields":{
-			"download_url": "http://download.com/1",
+			"public_url": "http://download.com/1",
 			"build": 1,
 			"a_type": 1
 		}
@@ -174,7 +174,7 @@
 		"model": "datastore.Artifact",
 		"pk": 2,
 		"fields":{
-			"download_url": "http://download.com/2",
+			"public_url": "http://download.com/2",
 			"build": 2,
 			"a_type": 1
 		}
@@ -183,7 +183,7 @@
 		"model": "datastore.Artifact",
 		"pk": 3,
 		"fields":{
-			"download_url": "http://download.com/3",
+			"public_url": "http://download.com/3",
 			"build": 3,
 			"a_type": 1
 		}
@@ -192,7 +192,7 @@
 		"model": "datastore.Artifact",
 		"pk": 4,
 		"fields":{
-			"download_url": "http://download.com/4",
+			"public_url": "http://download.com/4",
 			"build": 4,
 			"a_type": 1
 		}
@@ -201,7 +201,7 @@
 		"model": "datastore.Artifact",
 		"pk": 5,
 		"fields":{
-			"download_url": "http://download.com/5",
+			"public_url": "http://download.com/5",
 			"build": 5,
 			"a_type": 1
 		}
@@ -210,7 +210,7 @@
 		"model": "datastore.Artifact",
 		"pk": 6,
 		"fields":{
-			"download_url": "http://download.com/6",
+			"public_url": "http://download.com/6",
 			"build": 6,
 			"a_type": 1
 		}
@@ -219,7 +219,7 @@
 		"model": "datastore.Artifact",
 		"pk": 7,
 		"fields":{
-			"download_url": "http://download.com/7",
+			"public_url": "http://download.com/7",
 			"build": 7,
 			"a_type": 1
 		}
@@ -228,7 +228,7 @@
 		"model": "datastore.Artifact",
 		"pk": 8,
 		"fields":{
-			"download_url": "http://download.com/8",
+			"public_url": "http://download.com/8",
 			"build": 8,
 			"a_type": 1
 		}

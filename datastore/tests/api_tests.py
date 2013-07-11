@@ -2,12 +2,15 @@ from datastore.models import *
 from tastypie.test import ResourceTestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-from django.http.response import HttpResponseNotFound
+from django.http.response import HttpResponseNotFound, HttpResponseRedirect
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
 from datastore.tests.authenticated_tests import AuthenticatedTestCase
+from datastore.uploads import post_artifact_to_s3
+from django.conf import settings
 import json
 import urllib
+import boto
 
 class APITests(AuthenticatedTestCase):
 	fixtures = ['api_test_data']

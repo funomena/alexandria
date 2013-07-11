@@ -1,8 +1,11 @@
 from django.template.response import TemplateResponse
+from django.http.response import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from datastore.models import *
 from datastore.utils import get_build_query_set
+import boto
+from boto.s3.key import Key
 
 
 @login_required
@@ -26,16 +29,13 @@ def latest(request):
 def build_page(request, build_id):
 	build = Build.objects.get(id=build_id)
 
-	installers = Artifact.objects.filter(	a_type__installer_type__in=[ArtifactType.INSTALLER_TYPE_NORMAL,
-																	ArtifactType.INSTALLER_TYPE_IPHONE,
-																	ArtifactType.INSTALLER_TYPE_ANDROID],
-											build__id=build_id)
+	all_artifacts = Artifact.objects.filter(build_id=build_id)
 
-	artifacts = Artifact.objects.filter(	a_type__installer_type=ArtifactType.INSTALLER_TYPE_NONE,
-											build__id=build_id)
+	other_artifacts = {a for a in all_artifacts if a.a_type.installer_type == ArtifactType.INSTALLER_TYPE_NONE}
+	installers = set(all_artifacts) - other_artifacts
 
 	extra_data_set = ExtraDataValue.objects.filter(build_id=build_id)
-	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
+	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': other_artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})
 
 
 @login_required
@@ -56,4 +56,3 @@ def build_filter_page(request):
 @login_required
 def profile_page(request):
 	return TemplateResponse(request, 'profile_page.html', {'user': request.user})
-

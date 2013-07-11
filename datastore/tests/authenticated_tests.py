@@ -12,7 +12,8 @@ class AuthenticatedTestCase(ResourceTestCase):
 
 	def setUp(self):
 		super(AuthenticatedTestCase, self).setUp()
-		self.user = User.objects.create_user('timmygclef', 'timmygclef@example.com', 'secret')
+		self.raw_password = 'secret'
+		self.user = User.objects.create_user('timmygclef', 'timmygclef@example.com', self.raw_password)
 		self.client = Client()
 		self.api_key = ApiKey.objects.create(user=self.user)
 		self.api_prefix = "/api/v0/"

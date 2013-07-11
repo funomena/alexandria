@@ -31,14 +31,8 @@ def build_page(request, build_id):
 
 	all_artifacts = Artifact.objects.filter(build_id=build_id)
 
-	installers = []
-	other_artifacts = []
-
-	for art in all_artifacts:
-		if art.a_type.installer_type == ArtifactType.INSTALLER_TYPE_NONE:
-			other_artifacts.append(art)
-		else:
-			installers.append(art)
+	other_artifacts = {a for a in all_artifacts if a.a_type.installer_type == ArtifactType.INSTALLER_TYPE_NONE}
+	installers = set(all_artifacts) - other_artifacts
 
 	extra_data_set = ExtraDataValue.objects.filter(build_id=build_id)
 	return TemplateResponse(request, 'build.html', {'build': build, 'installers': installers, 'api_endpoint': "/api/v1/build/%s/" % (build.id), 'artifacts': other_artifacts, 'metadata_set': build.metadata.all(), 'extra_data_set': extra_data_set})

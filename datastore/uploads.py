@@ -73,6 +73,6 @@ def artifact_download_redirect(request, a_id):
 		key = bucket.lookup(art.secure_uuid)
 		return redirect(key.generate_url(30, response_headers={'response-content-disposition': 'attachment; filename=%s' % (filename)}))
 	else:
-		response = HttpResponseRedirect(art.download_url)
+		response = HttpResponseRedirect(art.public_url)
 		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)
 		return response

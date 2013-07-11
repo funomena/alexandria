@@ -49,7 +49,7 @@
 		"model": "datastore.Artifact",
 		"pk": 1,
 		"fields":{
-			"download_url": "http://download.com",
+			"public_url": "http://download.com",
 			"build": 1,
 			"a_type": 1
 		}

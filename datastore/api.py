@@ -15,6 +15,15 @@ class AlexandriaResource(ModelResource):
 	def determine_format(self, request):
 		return 'application/json'
 
+	def full_dehydrate(self, bundle, for_list=False):
+		"""
+			A hacky implementation of https://github.com/toastdriven/django-tastypie/pull/615,
+			which fixes this issue: https://github.com/toastdriven/django-tastypie/issues/654
+		"""
+		bundle.data = {}
+
+		return super(AlexandriaResource, self).full_dehydrate(bundle, for_list)
+
 
 class MetaDataCategoryResource(AlexandriaResource):
 	class Meta:
@@ -230,6 +239,12 @@ class ArtifactResource(AlexandriaResource):
 			url(r"^(?P<resource_name>%s)/(?P<a_type__slug>[\w\d_.-]+)/(?P<id>[\w\d_.-]+)/$" % self._meta.resource_name, self.wrap_view('dispatch_detail'), name="a_type_slug_dispatch_detail"),
 		]
 
+
+	def dehydrate(self, bundle):
+		bundle.data['download_url'] = bundle.obj.download_url
+		return bundle
+
+
 	def dehydrate_a_type(self, bundle):
 		return bundle.obj.a_type.friendly_name
 
@@ -257,6 +272,9 @@ class ArtifactResource(AlexandriaResource):
 			'a_type': ALL_WITH_RELATIONS,
 			'build': ALL_WITH_RELATIONS
 		}
-		
+		fields = ['download_url', 'a_type', 'build']
+		excludes = ['public_url']
+		always_return_data = True
+
 		authorization = Authorization()
 		authentication = ApiKeyAuthentication()

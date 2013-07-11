@@ -92,3 +92,12 @@ class UploadTests(AuthenticatedTestCase):
 		self.assertEquals(artifact_dl.text, self.test_payload_content)
 		self.assertIn("filename=test-installer_1.test", artifact_dl.headers["Content-Disposition"])
 
+
+	def test_post_artifact_with_public_url(self):
+		artifact_data = {'type': 'Test Installer', 'build': 1, 'public_url':'http://download.com/test'}
+		p = self.api_client.post(self.api_prefix + "artifact/", data=artifact_data, content_type='application/json', authentication=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+		returned_data = json.loads(p.content)
+		self.assertIn('download_url', returned_data)
+		self.assertNotIn('public_url', returned_data)
+

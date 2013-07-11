@@ -6,3 +6,4 @@ venv
 instance
 htmlcov
 .coverage
+*.env

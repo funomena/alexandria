@@ -25,3 +25,6 @@ else:
 	TEST_RUNNER = 'rainbowtests.RainbowTestSuiteRunner'
 
 SOUTH_TESTS_MIGRATE = False
+BROKER_BACKEND = 'memory'
+CELERY_ALWAYS_EAGER = True
+S3_BUCKET=os.environ.get("S3_BUCKET", "alexandria-test-uploads")

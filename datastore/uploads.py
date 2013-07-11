@@ -1,6 +1,8 @@
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.shortcuts import redirect
 import boto
 import celery
 import uuid
@@ -40,6 +42,8 @@ def recieve_upload(request):
 	if payload is None:
 		return HttpResponse("Payload not found", status=400)
 
+	post_artifact_to_s3.delay(created_artifact.pk, payload.read())
+
 	return HttpResponse(json.dumps(return_data), status=201)
 
 
@@ -67,7 +71,7 @@ def artifact_download_redirect(request, a_id):
 		if bucket is None:
 			return
 		key = bucket.lookup(art.secure_uuid)
-		return redirect(key.generate_url(30, response_headers={'Content-Disposition': 'attachment; filename=%s' % (filename)}))
+		return redirect(key.generate_url(30, response_headers={'response-content-disposition': 'attachment; filename=%s' % (filename)}))
 	else:
 		response = HttpResponseRedirect(art.download_url)
 		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)

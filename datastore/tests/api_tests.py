@@ -6,8 +6,11 @@ from django.http.response import HttpResponseNotFound, HttpResponseRedirect
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
 from datastore.tests.authenticated_tests import AuthenticatedTestCase
+from datastore.uploads import post_artifact_to_s3
+from django.conf import settings
 import json
 import urllib
+import boto
 
 class APITests(AuthenticatedTestCase):
 	fixtures = ['api_test_data']
@@ -272,24 +275,3 @@ class APITests(AuthenticatedTestCase):
 		r = self.api_client.get(self.api_prefix + "metadata/test-category-2/OtherMetaDataValue1/", data=self.valid_auth_params)
 		data = json.loads(r.content)
 		self.assertEquals(len(data['builds']), 3)
-
-
-	def test_download_urls_redirect_to_publicly_uploaded_files(self):
-		self.client.login(username=self.user.username, password=self.raw_password)
-		r = self.client.get("/download/1/")
-		self.assertIsInstance(r, HttpResponseRedirect)
-		self.assertEquals(r['Location'], "http://download.com/1")
-
-
-	def test_uploading_artifacts_requires_auth(self):
-		upload_data = {'build_id': 1, 'type': 'Test Installer'}
-		files = {'payload': open('Procfile', 'rb')}
-		p = self.api_client.post("/upload/", data=upload_data, files=files, content_type='application/json')
-		self.assertEquals(p.status_code, 401)
-
-
-	def test_uploading_artifacts_returns_proper_reponse_code(self):
-		upload_data = {'build_id': 1, 'type': 'Test Installer'}
-		files = {'payload': open('Procfile', 'rb')}
-		p = self.api_client.post("/upload/", data=upload_data, authentication=self.api_auth, files=files, content_type='application/json')
-		self.assertEquals(p.status_code, 201)

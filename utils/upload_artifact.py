@@ -52,3 +52,15 @@ if not args.pass_through:
 		print "Post returned: \n" + r.text
 		exit(1)
 	print "Done"
+
+else:
+	payload = open(args.artifact_uri, 'rb')
+	artifact_data = {'build_id': args.build_id, 'type': args.artifact_type}
+	api_header = "ApiKey: %s:%s" % (args.username, args.api_key)
+	post_url = args.host + "upload/"
+	p = requests.post(post_url, data=artifact_data, authentication=self.api_auth, files={'payload': payload}, content_type='application/json')
+	if p.status_code >= 400:
+		print "Status code was: " + str(p.status_code)
+		print "Post returned: \n" + p.text
+		exit(1)
+	print "Done"

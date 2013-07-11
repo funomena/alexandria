@@ -12,10 +12,8 @@ from models import *
 
 """
 	{
-		"api_key": str, 
 		"build_id": int,  
-		"type": str, 
-		"username": str
+		"type": str
 	}
 """
 def recieve_upload(request):

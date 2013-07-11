@@ -169,9 +169,9 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 ORG_NAME=os.environ.get("ORG_NAME", "MindSnacks")
 
-ORG_NAME=os.environ.get("S3_BUCKET", "alexandria-bucket")
-ORG_NAME=os.environ.get("AWS_ACCESS_KEY", "KEY")
-ORG_NAME=os.environ.get("AWS_ACCESS_SECRET", "SECRET")
+S3_BUCKET=os.environ.get("S3_BUCKET", "alexandria-bucket")
+AWS_ACCESS_KEY=os.environ.get("AWS_ACCESS_KEY", "KEY")
+AWS_ACCESS_SECRET=os.environ.get("AWS_ACCESS_SECRET", "SECRET")
 
 BROKER_URL = os.environ.get("CELERY_BROKER", 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", 'redis://localhost:6379/0')

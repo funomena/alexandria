@@ -1,4 +1,5 @@
 if [[ $TRAVIS_BRANCH == 'master' ]]
+	then
 	wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
 	git remote add heroku git@heroku.com:alexandria-demo.git
 	echo "Host heroku.com" >> ~/.ssh/config

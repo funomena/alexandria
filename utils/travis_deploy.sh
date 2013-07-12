@@ -8,5 +8,6 @@ if [[ $TRAVIS_BRANCH == 'master' ]]
 	echo "   UserKnownHostsFile=/dev/null" >> ~/.ssh/config 
 	heroku keys:clear
 	yes | heroku keys:add
+	yes | git push heroku master
 	heroku run python manage.py migrate --settings=alexandria.settings.heroku
 fi

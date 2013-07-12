@@ -56,10 +56,7 @@ def metadata_filter_function(metadata_category):
 		def lookups(self, request, model_admin):
 			metadata_list = []
 			for val in metadata_category.values.all():
-				metadata_list.append((val.value, _(val.value)))
-
-			metadata_list = tuple(metadata_list)
-			return metadata_list
+				yield (val.value, _(val.value))
 		
 		def queryset(self, request, queryset):
 			try:

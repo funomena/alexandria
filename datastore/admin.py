@@ -54,7 +54,6 @@ def metadata_filter_function(metadata_category):
 		parameter_name = metadata_category.slug
 
 		def lookups(self, request, model_admin):
-			metadata_list = []
 			for val in metadata_category.values.all():
 				yield (val.value, _(val.value))
 		

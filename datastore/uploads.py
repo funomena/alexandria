@@ -1,5 +1,6 @@
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.shortcuts import redirect
@@ -16,6 +17,7 @@ from models import *
 		"type": str
 	}
 """
+@csrf_exempt
 def recieve_upload(request):
 	auth_header = request.META.get("HTTP_AUTHORIZATION", None)
 	if auth_header is None:

@@ -58,7 +58,7 @@ else:
 	artifact_data = {'build_id': args.build_id, 'type': args.artifact_type}
 	api_header = "ApiKey: %s:%s" % (args.username, args.api_key)
 	post_url = args.host + "upload/"
-	p = requests.post(post_url, data=artifact_data, headers={"HTTP_AUTHORIZATION": api_header}, files={'payload': payload}, content_type='application/json')
+	p = requests.post(post_url, data=artifact_data, headers={"HTTP_AUTHORIZATION": api_header, "content-type":' application/json'}, files={'payload': payload})
 	if p.status_code >= 400:
 		print "Status code was: " + str(p.status_code)
 		print "Post returned: \n" + p.text

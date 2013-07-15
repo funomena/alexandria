@@ -26,7 +26,7 @@ def get_s3_bucket():
 	}
 """
 @csrf_exempt
-def recieve_upload(request):
+def receive_upload(request):
 	auth_header = request.META.get("HTTP_AUTHORIZATION", None)
 	if auth_header is None:
 		return HttpResponse('Unauthorized', status=401)

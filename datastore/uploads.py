@@ -27,7 +27,7 @@ def recieve_upload(request):
 	user = User.objects.get(username=key_pair[0])
 	api_key = user.api_key
 	if api_key.key != key_pair[1]:
-		return HttpResponse('Unauthorized', status=401)
+		return HttpResponse('Invalid Key Pair', status=401)
 
 	artifact_data = json.loads(request.body)
 	artifact_type = ArtifactType.objects.get(friendly_name=artifact_data['type'])

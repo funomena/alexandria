@@ -13,5 +13,3 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "alexandria")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "alexandria")
 
 SECRET_KEY = os.environ['SECRET_KEY']
-
-DEBUG=False

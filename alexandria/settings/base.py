@@ -175,3 +175,4 @@ AWS_ACCESS_SECRET=os.environ.get("AWS_ACCESS_SECRET", "SECRET")
 
 BROKER_URL = os.environ.get("CELERY_BROKER", 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", 'redis://localhost:6379/0')
+CELERY_IMPORTS = ('datastore.uploads')

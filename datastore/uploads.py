@@ -23,7 +23,7 @@ def recieve_upload(request):
 	if auth_header is None:
 		return HttpResponse('Unauthorized', status=401)
 
-	key_pair = auth_header[8:].split(":")
+	key_pair = auth_header[7:].split(":")
 	user = User.objects.get(username=key_pair[0])
 	api_key = user.api_key
 	if api_key.key != key_pair[1]:

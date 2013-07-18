@@ -58,7 +58,7 @@ if not args.pass_through:
 else:
 	payload = open(args.artifact_uri, 'rb')
 	artifact_data = {'build_id': args.build_id, 'type': args.artifact_type}
-	api_header = "ApiKey: %s:%s" % (args.username, args.api_key)
+	api_header = "ApiKey %s:%s" % (args.username, args.api_key)
 	post_url = args.host + "upload/"
 	p = requests.post(post_url, data=artifact_data, headers={"Authorization": api_header}, files={'payload': payload})
 	if p.status_code >= 400:

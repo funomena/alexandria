@@ -20,7 +20,7 @@ def get_build_query_set(metadata, base_list):
 	return q_list
 
 
-@receiver(pre_delete, sender=Artifact)
+@receiver(pre_delete, sender=Build)
 def clean_orphaned_metadatas(sender, instance, **kwargs):
 	for meta in instance.metadata:
 		if len(meta.builds.all()) > 2:

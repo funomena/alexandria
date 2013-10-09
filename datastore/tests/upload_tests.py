@@ -104,8 +104,8 @@ class UploadTests(AuthenticatedTestCase):
 
 	def test_deleting_artifact_model_deletes_artifact(self):
 		upload_data = {'build_id': 1, 'type': 'Test Installer'}
-		files = {'payload': open(self.test_payload.name, 'rb')}
-		p = self.api_client.post("/upload/", data=upload_data, authentication=self.api_auth, files=files, content_type='application/json')
+		upload_data['payload'] = open(self.test_payload.name, 'rb')
+		p = self.client.post("/upload/", upload_data, HTTP_AUTHORIZATION=self.api_auth)
 		self.assertEquals(p.status_code, 201)
 		artifact_pointer = json.loads(p.content)
 

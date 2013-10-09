@@ -22,7 +22,7 @@ def get_build_query_set(metadata, base_list):
 
 @receiver(pre_delete, sender=Build)
 def clean_orphaned_metadatas(sender, instance, **kwargs):
-	for meta in instance.metadata:
+	for meta in instance.metadata.all():
 		if len(meta.builds.all()) > 2:
 			meta.delete()
 

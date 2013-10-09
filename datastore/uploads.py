@@ -91,3 +91,4 @@ def delete_s3_uploaded_artifact(sender, instance, **kwargs):
 			return
 		key = bucket.lookup(instance.secure_uuid)
 		key.delete()
+

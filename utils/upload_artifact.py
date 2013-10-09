@@ -23,11 +23,13 @@ if args.host[-1:] != "/":
 	print args.host[-1:]
 	args.host += "/"
 
-args.artifact_type = args.artifact_type[0]
-args.artifact_uri = args.artifact_uri[0]
+args.artifact_type = args.artifact_type[0].strip()
+args.artifact_uri = args.artifact_uri[0].strip()
 args.build_id = args.build_id[0]
-args.username = args.username[0]
-args.api_key = args.api_key[0]
+args.username = args.username[0].strip()
+args.api_key = args.api_key[0].strip()
+
+print args
 
 if not args.pass_through:
 	random_uuid = str(uuid.uuid4())
@@ -56,11 +58,14 @@ if not args.pass_through:
 else:
 	payload = open(args.artifact_uri, 'rb')
 	artifact_data = {'build_id': args.build_id, 'type': args.artifact_type}
-	api_header = "ApiKey: %s:%s" % (args.username, args.api_key)
+	api_header = "ApiKey %s:%s" % (args.username, args.api_key)
 	post_url = args.host + "upload/"
 	p = requests.post(post_url, data=artifact_data, headers={"HTTP_AUTHORIZATION": api_header, "content-type":' application/json'}, files={'payload': payload})
 	if p.status_code >= 400:
 		print "Status code was: " + str(p.status_code)
-		print "Post returned: \n" + p.text
+		#print "Post returned: \n" + p.text
+		f = open("out", "w")
+		f.write(p.text)
+		f.close()
 		exit(1)
 	print "Done"

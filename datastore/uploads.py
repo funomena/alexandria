@@ -35,14 +35,13 @@ def receive_upload(request):
 	user = User.objects.get(username=key_pair[0])
 	api_key = user.api_key
 	if api_key.key != key_pair[1]:
-		return HttpResponse('Unauthorized', status=401)
+		return HttpResponse('Invalid Key Pair', status=401)
 
-	artifact_data = json.loads(request.body)
-	artifact_type = ArtifactType.objects.get(friendly_name=artifact_data['type'])
-	created_artifact = Artifact.objects.create(a_type=artifact_type, build_id=artifact_data['build_id'], is_secure=True)
+	artifact_type = ArtifactType.objects.get(friendly_name=request.POST['type'])
+	created_artifact = Artifact.objects.create(a_type=artifact_type, build_id=request.POST['build_id'], is_secure=True)
 	return_data = {'id': created_artifact.pk, 'created': True}
 
-	uploaded_files = request.META.get("files", None)
+	uploaded_files = request.FILES
 	if uploaded_files is None:
 		return HttpResponse("No files uploaded", status=400)
 

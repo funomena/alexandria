@@ -272,7 +272,7 @@ class ArtifactResource(AlexandriaResource):
 			'a_type': ALL_WITH_RELATIONS,
 			'build': ALL_WITH_RELATIONS
 		}
-		fields = ['download_url', 'a_type', 'build']
+		fields = ['download_url', 'a_type', 'build', 'secure_uuid']
 		excludes = ['public_url']
 		always_return_data = True
 

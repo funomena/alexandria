@@ -2,14 +2,22 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_delete
 from django.conf import settings
 from django.shortcuts import redirect
+from django.dispatch import receiver
 import boto
 import celery
 import uuid
 import json
 from boto.s3.key import Key
 from models import *
+
+
+def get_s3_bucket():
+	s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
+	bucket = s3.lookup(settings.S3_BUCKET)
+	return bucket
 
 """
 	{
@@ -18,7 +26,7 @@ from models import *
 	}
 """
 @csrf_exempt
-def recieve_upload(request):
+def receive_upload(request):
 	auth_header = request.META.get("HTTP_AUTHORIZATION", None)
 	if auth_header is None:
 		return HttpResponse('Unauthorized', status=401)
@@ -48,8 +56,7 @@ def recieve_upload(request):
 
 @celery.task()
 def post_artifact_to_s3(artifact_id, artifact_data):
-	s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
-	bucket = s3.lookup(settings.S3_BUCKET)
+	bucket = get_s3_bucket()
 	artifact_uuid = str(uuid.uuid4())
 	artifact_key = Key(bucket, artifact_uuid)
 	artifact_key.set_contents_from_string(artifact_data)
@@ -65,8 +72,7 @@ def artifact_download_redirect(request, a_id):
 	art = Artifact.objects.get(pk=a_id)
 	filename = "%s_%s%s" % (art.a_type.slug, art.build_id, art.a_type.extension)
 	if art.is_secure:
-		s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
-		bucket = s3.lookup(settings.S3_BUCKET)
+		bucket = get_s3_bucket()
 		if bucket is None:
 			return
 		key = bucket.lookup(art.secure_uuid)
@@ -75,3 +81,13 @@ def artifact_download_redirect(request, a_id):
 		response = HttpResponseRedirect(art.public_url)
 		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)
 		return response
+
+
+@receiver(pre_delete, sender=Artifact)
+def delete_s3_uploaded_artifact(sender, instance, **kwargs):
+	if instance.is_secure:
+		bucket = get_s3_bucket()
+		if bucket is None:
+			return
+		key = bucket.lookup(instance.secure_uuid)
+		key.delete()

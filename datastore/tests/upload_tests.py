@@ -6,7 +6,7 @@ from django.http.response import HttpResponseNotFound, HttpResponseRedirect
 from tastypie.models import ApiKey
 from tastypie.http import HttpUnauthorized
 from datastore.tests.authenticated_tests import AuthenticatedTestCase
-from datastore.uploads import post_artifact_to_s3
+from datastore.uploads import post_artifact_to_s3, get_s3_bucket
 from django.conf import settings
 import json
 import urllib
@@ -100,4 +100,20 @@ class UploadTests(AuthenticatedTestCase):
 		returned_data = json.loads(p.content)
 		self.assertIn('download_url', returned_data)
 		self.assertNotIn('public_url', returned_data)
+
+
+	def test_deleting_artifact_model_deletes_artifact(self):
+		upload_data = {'build_id': 1, 'type': 'Test Installer'}
+		upload_data['payload'] = open(self.test_payload.name, 'rb')
+		p = self.client.post("/upload/", upload_data, HTTP_AUTHORIZATION=self.api_auth)
+		self.assertEquals(p.status_code, 201)
+		artifact_pointer = json.loads(p.content)
+
+		created_artifact = Artifact.objects.get(pk=artifact_pointer['id'])
+		artifact_key_name = created_artifact.secure_uuid
+		created_artifact.delete()
+
+		bucket = get_s3_bucket()
+		key_names = map(lambda x: x.name, bucket.get_all_keys())
+		self.assertNotIn(artifact_key_name, key_names)
 

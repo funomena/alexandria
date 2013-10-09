@@ -90,5 +90,6 @@ def delete_s3_uploaded_artifact(sender, instance, **kwargs):
 		if bucket is None:
 			return
 		key = bucket.lookup(instance.secure_uuid)
-		key.delete()
+		if key:
+			key.delete()
 

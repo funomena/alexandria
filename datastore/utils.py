@@ -1,5 +1,7 @@
 from datastore.models import *
 from django.db.models import Q
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 
 def get_build_query_set(metadata, base_list):
@@ -16,3 +18,11 @@ def get_build_query_set(metadata, base_list):
 				q_list &= base_list.filter(q_subset).distinct()
 
 	return q_list
+
+
+@receiver(pre_delete, sender=Build)
+def clean_orphaned_metadatas(sender, instance, **kwargs):
+	for meta in instance.metadata.all():
+		if len(meta.builds.all()) < 2:
+			meta.delete()
+

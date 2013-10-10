@@ -121,9 +121,9 @@ class ArtifactType(models.Model):
 	@property
 	def download_decorator(self):
 		if self.installer_type == ArtifactType.INSTALLER_TYPE_IPHONE:
-			return "itms-services://?action=download-manifest&url={url}"
+			return "itms-services://?action=download-manifest&url={% url %}{dl_url}"
 		else:
-			return "{url}"
+			return "{dl_url}"
 
 
 class Artifact(models.Model):
@@ -144,7 +144,7 @@ class Artifact(models.Model):
 	@property
 	def decorated_download_url(self):
 		dl_url = self.download_url
-		return self.a_type.download_decorator.format(url=dl_url)
+		return self.a_type.download_decorator.format(dl_url=dl_url)
 
 	def __unicode__(self):
 		return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)

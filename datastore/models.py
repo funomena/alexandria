@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.core.resolvers import reverse
 from django.utils.timezone import utc
 import datetime
 
@@ -121,7 +122,7 @@ class ArtifactType(models.Model):
 	@property
 	def download_decorator(self):
 		if self.installer_type == ArtifactType.INSTALLER_TYPE_IPHONE:
-			return "itms-services://?action=download-manifest&url={% url %}{dl_url}"
+			return "itms-services://?action=download-manifest&url=%s{dl_url}" % (reverse(''))
 		else:
 			return "{dl_url}"
 

@@ -1,6 +1,6 @@
 from django.db import models
+from django.contrib.sites.models import Site
 from django.template.defaultfilters import slugify
-from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 import datetime
 
@@ -122,7 +122,8 @@ class ArtifactType(models.Model):
 	@property
 	def download_decorator(self):
 		if self.installer_type == ArtifactType.INSTALLER_TYPE_IPHONE:
-			return "itms-services://?action=download-manifest&url=%s{dl_url}" % (reverse(''))
+			current_site = Site.objects.get_current()
+			return "itms-services://?action=download-manifest&url=http://%s{dl_url}" % (current_site.domain)
 		else:
 			return "{dl_url}"
 

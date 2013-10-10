@@ -120,7 +120,7 @@ class ArtifactType(models.Model):
 
 	@property
 	def download_decorator(self):
-		if self.installer_type == INSTALLER_TYPE_IPHONE:
+		if self.installer_type == ArtifactType.INSTALLER_TYPE_IPHONE:
 			return "itms-services://?action=download-manifest&url={url}"
 		else:
 			return "{url}"

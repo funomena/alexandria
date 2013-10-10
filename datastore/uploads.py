@@ -60,8 +60,7 @@ def post_artifact_to_s3(artifact_id, artifact_data):
 	artifact.save()
 
 
-@login_required
-def artifact_download_redirect(request, a_id):
+def artifact_download_redirect(a_id):
 	art = Artifact.objects.get(pk=a_id)
 	filename = "%s_%s%s" % (art.a_type.slug, art.build_id, art.a_type.extension)
 	if art.is_secure:
@@ -75,3 +74,15 @@ def artifact_download_redirect(request, a_id):
 		response = HttpResponseRedirect(art.public_url)
 		response['Content-Disposition'] = 'attachment; filename=%s' % (filename)
 		return response
+
+
+@login_required
+def download_artifact_by_id(request, a_id):
+	return artifact_download_redirect(a_id)
+
+
+@login_required
+def build_artifact_download_redirect(request, build_id, a_type):
+	build = Build.objects.get(pk=b_id)
+	art = build.artifacts.get(a_type__slug=a_type)
+	return artifact_download_redirect(art.pk)

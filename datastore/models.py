@@ -123,7 +123,7 @@ class ArtifactType(models.Model):
 	def download_decorator(self):
 		if self.installer_type == ArtifactType.INSTALLER_TYPE_IPHONE:
 			current_site = Site.objects.get_current()
-			return "itms-services://?action=download-manifest&url=http://%s{dl_url}" % (current_site.domain)
+			return "itms-services://?action=download-manifest&url=%s{dl_url}" % (current_site.domain)
 		else:
 			return "{dl_url}"
 

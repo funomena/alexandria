@@ -89,7 +89,7 @@ def download_artifact_by_id(request, a_id):
 
 @login_required
 def build_artifact_download_redirect(request, build_id, a_type):
-	build = Build.objects.get(pk=b_id)
+	build = Build.objects.get(pk=build_id)
 	art = build.artifacts.get(a_type__slug=a_type)
 	return artifact_download_redirect(art.pk)
 

@@ -26,3 +26,9 @@ def clean_orphaned_metadatas(sender, instance, **kwargs):
 		if len(meta.builds.all()) < 2:
 			meta.delete()
 
+
+@receiver(post_delete, sender=Build)
+def wipe_all_orphaned_metadatas(sender, instance, **kwargs):
+	for meta in MetaData.objects.all():
+		if len(meta.builds.all()) == 0:
+			meta.delete()

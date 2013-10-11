@@ -2,6 +2,7 @@ from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import Authorization
 from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.bundle import Bundle
 from tastypie import fields, http
 from datastore.models import *
 from django.core.urlresolvers import reverse
@@ -187,21 +188,25 @@ class BuildResource(AlexandriaResource):
 			return q_list
 
 
-	"""
-		Kind of hacky, but tastypie was overwriting the m2m relationships on obj_create.
-		This persists any existing relationships on save.
-	"""
-	def obj_create(self, bundle, **kwargs):
-		saved_metas = MetaData.objects.all()
-		meta_ids_to_build_ids = {}
-		for m in saved_metas:
-			meta_ids_to_build_ids[m.pk] = map(lambda x: int(x.pk), m.builds.all())
-		bundle = super(BuildResource, self).obj_create(bundle, **kwargs)
-		for m in MetaData.objects.all():
-			if m.pk in meta_ids_to_build_ids:
-				ids = meta_ids_to_build_ids[m.pk]
-				m.builds.add(*ids)
-				m.save()
+	def full_hydrate(self, bundle):
+		b = Build.objects.create(name=bundle.data.get('name', None))
+
+		for m in bundle.data['metadata']:
+			if type(m) == Bundle:
+				m = m.data
+			mc = MetaDataCategory.objects.get(friendly_name=m.get('category'))
+			meta, created = MetaData.objects.get_or_create(category=mc, value=m.get('value'))
+			if created:
+				meta.save()
+			b.metadata.add(meta)
+
+		for e in bundle.data['extra_data']:
+			if type(e) == Bundle:
+				e = e.data
+			ed_type = ExtraDataType.objects.get(friendly_name=e.get('ed_type'))
+			ed = ExtraDataValue.objects.create(ed_type=ed_type, value=e.get('value'), build=b)
+
+		bundle.obj = b
 		return bundle
 
 

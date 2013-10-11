@@ -152,6 +152,7 @@ class APITests(AuthenticatedTestCase):
 		data = json.loads(r.content)
 
 		metadata = data['metadata'][0]
+		print metadata
 		m = self.client.get(metadata['resource_uri'], data=self.valid_auth_params)
 		test_data = json.loads(m.content)
 
@@ -259,12 +260,16 @@ class APITests(AuthenticatedTestCase):
 
 	def test_created_metadatas_have_correct_builds(self):
 		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_some_new_meta, content_type='application/json', authentication=self.api_auth)
-		p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_all_new_meta, content_type='application/json', authentication=self.api_auth)
+		#p = self.api_client.post(self.api_prefix + "build/", data=self.build_data_with_all_new_meta, content_type='application/json', authentication=self.api_auth)
+
+		m = MetaData.objects.get(value="MetaDataValue2")
+		self.assertEquals(len(m.builds.all()), 2)
+
 
 		# There should be 2 builds with MetaDataValue2
-		r = self.api_client.get(self.api_prefix + "metadata/test-category/MetaDataValue2/", data=self.valid_auth_params)
-		data = json.loads(r.content)
-		self.assertEquals(len(data['builds']), 2)
+		#r = self.api_client.get(self.api_prefix + "metadata/test-category/MetaDataValue2/", data=self.valid_auth_params)
+		#data = json.loads(r.content)
+		#self.assertEquals(len(data['builds']), 2)
 
 
 	def test_updated_metadatas_have_correct_builds(self):

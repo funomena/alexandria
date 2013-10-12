@@ -192,7 +192,14 @@ class BuildResource(AlexandriaResource):
 		This persists any existing relationships on save.
 	"""
 	def obj_create(self, bundle, **kwargs):
-		saved_metas = MetaData.objects.all()
+		bundle_metas = bundle.data['metadata']
+		saved_metas = []
+		for bundle_meta in bundle_metas:
+			mc = MetaDataCategory.objects.filter(friendly_name=bundle_meta['category']).prefetch_related('values')[0]
+			m = mc.values.filter(value=bundle_meta['value'])
+			if len(m) > 0:
+				saved_metas.append(m[0])
+
 		meta_ids_to_build_ids = {}
 		for m in saved_metas:
 			meta_ids_to_build_ids[m.pk] = map(lambda x: int(x.pk), m.builds.all())

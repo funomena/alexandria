@@ -197,7 +197,7 @@ class BuildResource(AlexandriaResource):
 		for m in saved_metas:
 			meta_ids_to_build_ids[m.pk] = map(lambda x: int(x.pk), m.builds.all())
 		bundle = super(BuildResource, self).obj_create(bundle, **kwargs)
-		for m in MetaData.objects.all():
+		for m in saved_metas:
 			if m.pk in meta_ids_to_build_ids:
 				ids = meta_ids_to_build_ids[m.pk]
 				m.builds.add(*ids)

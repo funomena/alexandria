@@ -115,18 +115,9 @@ class ArtifactCategory(models.Model):
 class Artifact(models.Model):
     category = models.ForeignKey(ArtifactCategory, related_name='instances')
     build = models.ForeignKey(Build, related_name='artifacts')
-    public_url = models.CharField(max_length=128, null=True)
-    is_secure = models.BooleanField(default=False)
-    secure_uuid = models.CharField(max_length=64, null=True)
-
-    @property
-    def download_url(self):
-        return "/download/%s/" % self.pk
-
-    @property
-    def decorated_download_url(self):
-        dl_url = self.download_url
-        return self.a_type.download_decorator.format(dl_url=dl_url)
+    s3_key = models.CharField(max_length=64, null=True)
+    file_size = models.IntegerField(default=0)
+    md5_hash = models.CharField(max_length=32, null=True)
 
     def __unicode__(self):
         return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)

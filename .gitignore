@@ -7,3 +7,4 @@ instance
 htmlcov
 .coverage
 *.env
+*.swp

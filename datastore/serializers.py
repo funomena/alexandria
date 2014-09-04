@@ -3,44 +3,53 @@ from datastore.models import ArtifactCategory, Artifact, Build
 from rest_framework import serializers
 
 
-class MetadataCategorySerializer(serializers.HyperlinkedModelSerializer):
+class MetadataCategorySerializer(serializers.ModelSerializer):
+    values = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
     class Meta:
         model = MetadataCategory
-        read_only_fields = ('slug', 'friendly_name', 'required', 'values')
+        read_only_fields = ('slug', 'friendly_name', 'required')
+        lookup_field = 'slug'
 
 
-class MetadataValueSerializer(serializers.HyperlinkedModelSerializer):
+# TODO: Make value field dynamic based on category type
+# TODO: Remove string_value
+class MetadataValueSerializer(serializers.ModelSerializer):
     category = MetadataCategorySerializer()
+    builds = serializers.PrimaryKeyRelatedField(many=True, read_only=True) 
+    string_value = serializers.CharField()
+
     class Meta:
         model = MetadataValue
-        read_only_fields = ('value', 'builds')
+        lookup_field = 'pk'
 
 
-class TagSeralizer(serializers.HyperlinkedModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
+    builds = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     class Meta:
         model = Tag
-        read_only_fields = ('value', 'builds')
+        read_only_fields = ('value',)
 
 
-class ArtifactCategorySeralizer(serializers.HyperlinkedModelSerializer):
+class ArtifactCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArtifactType
+        model = ArtifactCategory
         read_only_fields = ('slug', 'friendly_name', 'extension')
 
 
-class ArtifactSeralizer(serializers.HyperlinkedModelSerializer):
+class ArtifactSerializer(serializers.ModelSerializer):
+    category = ArtifactCategorySerializer()
+    build = serializers.RelatedField()
     class Meta:
         model = Artifact
-        fields = ('a_type', 'build')
 
 
-class BuildSerializer(serializers.Serializer):
+class BuildSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=64)
     tags = serializers.SlugRelatedField(many=True, slug_field='value')
     metadata = MetadataValueSerializer(many=True)
-    artifacts = ArtifactSerializer(many=True)
-    
-    
+    artifacts = serializers.PrimaryKeyRelatedField(many=True)    
+   
     def restore_object(self, attrs, instance=None):
         """
         Given a dictionary of deserialized field values, either update

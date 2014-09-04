@@ -1,0 +1,111 @@
+[
+    {
+        "model": "datastore.MetadataCategory",
+        "pk": 1,
+        "fields":{
+            "friendly_name": "Test String Category",
+            "slug": "test-string-category",
+            "required": true,
+            "datatype": "string"
+        }
+    },
+    {
+        "model": "datastore.MetadataCategory",
+        "pk": 2,
+        "fields":{
+            "friendly_name": "Test Link Category",
+            "slug": "test-link-category",
+            "required": false,
+            "datatype": "link"
+        }
+    },
+    {
+        "model": "datastore.MetadataCategory",
+        "pk": 3,
+        "fields":{
+            "friendly_name": "Test Int Category",
+            "slug": "test-int-category",
+            "required": false,
+            "datatype": "integer"
+        }
+    },
+    {
+        "model": "datastore.MetadataCategory",
+        "pk": 4,
+        "fields":{
+            "friendly_name": "Test Date Category",
+            "slug": "test-date-category",
+            "required": false,
+            "datatype": "datetime"
+        }
+    },
+    {
+        "model": "datastore.MetadataValue",
+        "pk": 1,
+        "fields":{
+            "category": 1,
+            "string_value": "Test String Value"
+        }
+    },
+    {
+        "model": "datastore.MetadataValue",
+        "pk": 2,
+        "fields":{
+            "category": 2,
+            "string_value": "http://www.testlinkvalue.com"
+        }
+    },
+    {
+        "model": "datastore.MetadataValue",
+        "pk": 3,
+        "fields":{
+            "category": 3,
+            "string_value": "12345"
+        }
+    },
+    {
+        "model": "datastore.MetadataValue",
+        "pk": 4,
+        "fields":{
+            "category": 4,
+            "string_value": "1988-09-09 04:32:18"
+        }
+    },
+    {
+        "model": "datastore.Build",
+        "pk": 1,
+        "fields":{
+            "name": "Test Build",
+            "metadata": [1,2,3,4],
+            "tags": [1]
+        }
+    },
+    {
+        "model": "datastore.Tag",
+        "pk": 1,
+        "fields":{
+            "value": "Test Tag"
+        }
+    },
+    {
+        "model": "datastore.ArtifactCategory",
+        "pk": 1,
+        "fields":{
+            "friendly_name": "Test Artifact",
+            "slug": "test-artifact",
+            "installer_type": "Not Installer",
+            "extension": ".wtf"
+        }
+    },
+    {
+        "model": "datastore.Artifact",
+        "pk": 1,
+        "fields":{
+            "build": 1,
+            "category": 1,
+            "s3_key": "c7669195-1d27-40ed-bccf-a52130ecdd5e",
+            "file_size": 128,
+            "md5_hash": "b448811d234bde472d4ffabde916d22e"
+        }
+    }
+]

@@ -1,3 +1,0 @@
-Hi!
-
-Thanks for registering for an account at {{site.name}}.  There's one more step to finish activating your account.  Click this link and you're all set: {{site.domain}}/accounts/activate/{{activation_key}}

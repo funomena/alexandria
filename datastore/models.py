@@ -1,123 +1,106 @@
 from django.db import models
-from django.contrib.sites.models import Site
-from django.template.defaultfilters import slugify
-from django.utils.timezone import utc
-import datetime
 
-class MetaDataCategory(models.Model):
-	"""
-		A category of searchable metadata about builds in this archive.
-		Examples include Git Branch, Build Number, Build Configuration, etc.
-		Contains an implied field ``values``.
-	"""
-	slug = models.SlugField(blank=True)
-	friendly_name = models.CharField(max_length=64)
+DTYPE_STRING="string"
+DTYPE_LINK="link"
+DTYPE_INT="integer"
+DTYPE_DATETIME="datetime"
 
-	def __unicode__(self):
-		return unicode(self.friendly_name)
+DATATYPE_CHOICES=(
+	(DTYPE_STRING, DTYPE_STRING),
+	(DTYPE_LINK, DTYPE_LINK),
+	(DTYPE_INT, DTYPE_INT),
+	(DTYPE_DATETIME, DTYPE_DATETIME),
+		)
 
-	def save(self, *args, **kwargs):
-		if not self.slug or self.slug == "":
-			self.slug = slugify(self.friendly_name)
+INSTALLER_TYPE_NONE = "Not Installer"
+INSTALLER_TYPE_NORMAL = "Normal Installer"
+INSTALLER_TYPE_IPHONE = "iPhone Installer"
+INSTALLER_TYPE_ANDROID = "Android Installer"
 
-		return super(MetaDataCategory, self).save(*args, **kwargs)
+INSTALLER_TYPES = (
+	(INSTALLER_TYPE_NONE, INSTALLER_TYPE_NONE),
+	(INSTALLER_TYPE_NORMAL, INSTALLER_TYPE_NORMAL),
+	(INSTALLER_TYPE_IPHONE, INSTALLER_TYPE_IPHONE),
+	(INSTALLER_TYPE_ANDROID, INSTALLER_TYPE_ANDROID),
+	)
 
 
-class MetaData(models.Model):
-	"""
-		A value of a ``MetaDataCategory`` that applies to one or more ``Builds``.
-		Contains an implied field ``builds``.
-	"""
-	category = models.ForeignKey(MetaDataCategory, related_name='values')
-	value = models.CharField(max_length=128)
 
-	def __unicode__(self):
-		return u"%s: %s" % (self.category.friendly_name, self.value)
+""" A category of data that can be used to describe a Build """
+class MetadataCategory(models.Model):
+	""" Human readable name (for display only) """
+	friendly_name = models.CharField(max_length=128)
+
+	""" Sluggified name, better for searching """
+	slug = models.SlugField(unique=True)
+
+	""" Whether Builds require a value of this type """
+	required = models.BooleanField(default=False)
+
+	""" The data type this category contains """
+	datatype = models.CharField(	choices=DATATYPE_CHOICES,
+					default="string",
+					max_length=16)
+
+
+""" A value of data that can be used to describe a build """
+class MetadataValue(models.Model):
+	""" The category of data this object describes """
+	category = models.ForeignKey(MetadataCategory, related_name="values")
+
+	""" The stored string value of this data object """
+	string_value = models.CharField(max_length=256)
+	
+	""" The stored value of this data object in its true form """
+	@property
+	def value(self):
+		if( category.datatype == DTYPE_INT ):
+			return int(string_value)
+		elif( category.datatype == DTYPE_DATETIME ):
+			return datetime.strptime(string_value, "%Y-%m-%d %H:%M:%S")
+		else:
+			return string_value
+
+	@value.setter
+	def value(self, v):
+		if( type(v) is int and category.datatype == DTYPE_INT ):
+			string_value = str(v)
+		elif( type(v) is datetime and category.datatype == DTYPE_DATETIME ):
+			string_value = v.strftime(v, "%Y-%m-%d %H:%M:%S")
+		elif( type(v) is str and category.datatype == DTYPE_STRING ):
+			string_value = v
+		elif( type(v) is str and "://" in v and category.datatype == DTYPE_LINK ):
+			string_value = v
+		else:
+			raise Exception("Value is of invalid type")
+
+
+""" A tag of arbitrary, category-less data """
+class Tag(models.Model):
+	""" The value of this tag """
+	value = models.CharField(max_length=256)
 
 
 class Build(models.Model):
-	"""
-		A specific build, which can be sorted and filtered by one or more ``MetaData`` values.
-		Contains the implied fields ``extra_data`` and ``artifacts``.
-	"""
-	name = models.CharField(max_length=128, null=True)
-	created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.utcnow().replace(tzinfo=utc))
-	metadata = models.ManyToManyField(MetaData, related_name='builds')
-	starred = models.BooleanField(default=False)
+	""" A human readable name for this build """
+	name = models.CharField(max_length=64)
 
-	def __unicode__(self):
-		return unicode(self.name)
+	""" Metadata by which this build is categorized """
+	metadata = models.ManyToManyField(MetadataValue, related_name="builds")
+
+	""" Any arbitrary data associated with this build """
+	tags = models.ManyToManyField(Tag, related_name="builds")
 
 
-class ExtraDataType(models.Model):
-	""" 
-		A type of extra data that is not searchable or used to categorize a build.
-		Examples include build logs, associated JIRA tickets, and Github URLs.
-		Contains the implied field ``values`` which links to multiple ``ExtraDataValue``s
-	"""
-	slug = models.SlugField()
-	friendly_name = models.CharField(max_length=64)
-
-	def __unicode__(self):
-		return unicode(self.friendly_name)
-
-	def save(self, *args, **kwargs):
-		if not self.slug or self.slug == "":
-			self.slug = slugify(self.friendly_name)
-
-		return super(ExtraDataType, self).save(*args, **kwargs)
-
-
-class ExtraDataValue(models.Model):
-	"""
-		A piece of additional data of a specific ``ExtraDataType`` that is not searchable or 
-		used to categorize a build.  This contains build data that is not necessary for 
-		finding a build, but may be useful after it's found.  Examples include build logs, 
-		JIRA tickets, and Github URLs.
-	"""
-	ed_type = models.ForeignKey(ExtraDataType, related_name='values')
-	value = models.TextField()
-	build = models.ForeignKey(Build, related_name='extra_data')
-
-	def __unicode__(self):
-		return u"%s: %s" % (self.ed_type.friendly_name, self.value)
-
-
-class ArtifactType(models.Model):
-	"""
-		A type of build artifact that this build archive supports.  Artifacts may or may not
-		be application installers.  Support is offered for 3 types of installers:
-			iPhone OTA installers
-			Android OTA installers
-			Regular old download-and-execute installers
-		Any artifact that is not an installer should ahve it's ``installer_type`` set to
-		"Not Installer"
-		Contains an implied field ``instances``.
-	"""
-	INSTALLER_TYPE_NONE = "NOT INSTALLER"
-	INSTALLER_TYPE_NORMAL = "NORMAL INSTALLER"
-	INSTALLER_TYPE_IPHONE = "IPHONE INSTALLER"
-	INSTALLER_TYPE_ANDROID = "ANDROID INSTALLER"
-
-	INSTALLER_TYPES = (
-		(INSTALLER_TYPE_NONE, 'Not Installer'),
-		(INSTALLER_TYPE_NORMAL, 'Normal Installer'),
-		(INSTALLER_TYPE_IPHONE, 'iPhone Installer'),
-		(INSTALLER_TYPE_ANDROID, 'Android Installer'),
-		)
-
-	slug = models.SlugField()
+""" A type of artifact that can be downloaded. """
+class ArtifactCategory(models.Model):
+	slug = models.SlugField(unique=True)
 	friendly_name = models.CharField(max_length=64)
 	installer_type = models.CharField(max_length=32, choices=INSTALLER_TYPES, default=INSTALLER_TYPE_NONE)
 	extension = models.CharField(max_length=16)
 
 	def __unicode__(self):
 		return unicode(self.friendly_name)
-
-	def save(self, *args, **kwargs):
-		if not self.slug or self.slug == "":
-			self.slug = slugify(self.friendly_name)
-		return super(ArtifactType, self).save(*args, **kwargs)
 
 	@property
 	def download_decorator(self):
@@ -128,12 +111,9 @@ class ArtifactType(models.Model):
 			return "{dl_url}"
 
 
+""" An artifact of a specific type """
 class Artifact(models.Model):
-	"""
-		An artifact of a specific ``ArtifactType``.  The artifact should be able to be downloaded
-		from the ``download_url`` provided in this object.
-	"""
-	a_type = models.ForeignKey(ArtifactType, related_name='instances')
+	category = models.ForeignKey(ArtifactCategory, related_name='instances')
 	build = models.ForeignKey(Build, related_name='artifacts')
 	public_url = models.CharField(max_length=128, null=True)
 	is_secure = models.BooleanField(default=False)

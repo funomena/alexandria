@@ -1,1 +1,0 @@
-from frontend.tests.view_tests import *

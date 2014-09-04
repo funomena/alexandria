@@ -1,112 +1,106 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Build'
-        db.create_table(u'datastore_build', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
-        ))
-        db.send_create_signal(u'datastore', ['Build'])
+    dependencies = [
+    ]
 
-        # Adding model 'MetaDataCategory'
-        db.create_table(u'datastore_metadatacategory', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('friendly_name', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('is_extra_data', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal(u'datastore', ['MetaDataCategory'])
-
-        # Adding model 'MetaData'
-        db.create_table(u'datastore_metadata', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('category', self.gf('django.db.models.fields.related.ForeignKey')(related_name='values', to=orm['datastore.MetaDataCategory'])),
-            ('build', self.gf('django.db.models.fields.related.ForeignKey')(related_name='metadata', to=orm['datastore.Build'])),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=128)),
-        ))
-        db.send_create_signal(u'datastore', ['MetaData'])
-
-        # Adding model 'ArtifactType'
-        db.create_table(u'datastore_artifacttype', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('friendly_name', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('is_installer', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('extension', self.gf('django.db.models.fields.CharField')(max_length=16)),
-            ('download_decorator', self.gf('django.db.models.fields.CharField')(max_length=128)),
-        ))
-        db.send_create_signal(u'datastore', ['ArtifactType'])
-
-        # Adding model 'Artifact'
-        db.create_table(u'datastore_artifact', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('a_type', self.gf('django.db.models.fields.related.ForeignKey')(related_name='instances', to=orm['datastore.ArtifactType'])),
-            ('build', self.gf('django.db.models.fields.related.ForeignKey')(related_name='artifacts', to=orm['datastore.Build'])),
-            ('download_url', self.gf('django.db.models.fields.CharField')(max_length=128)),
-        ))
-        db.send_create_signal(u'datastore', ['Artifact'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Build'
-        db.delete_table(u'datastore_build')
-
-        # Deleting model 'MetaDataCategory'
-        db.delete_table(u'datastore_metadatacategory')
-
-        # Deleting model 'MetaData'
-        db.delete_table(u'datastore_metadata')
-
-        # Deleting model 'ArtifactType'
-        db.delete_table(u'datastore_artifacttype')
-
-        # Deleting model 'Artifact'
-        db.delete_table(u'datastore_artifact')
-
-
-    models = {
-        u'datastore.artifact': {
-            'Meta': {'object_name': 'Artifact'},
-            'a_type': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'instances'", 'to': u"orm['datastore.ArtifactType']"}),
-            'build': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'artifacts'", 'to': u"orm['datastore.Build']"}),
-            'download_url': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
-        u'datastore.artifacttype': {
-            'Meta': {'object_name': 'ArtifactType'},
-            'download_decorator': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'extension': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
-            'friendly_name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_installer': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
-        },
-        u'datastore.build': {
-            'Meta': {'object_name': 'Build'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'datastore.metadata': {
-            'Meta': {'object_name': 'MetaData'},
-            'build': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'metadata'", 'to': u"orm['datastore.Build']"}),
-            'category': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'values'", 'to': u"orm['datastore.MetaDataCategory']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'datastore.metadatacategory': {
-            'Meta': {'object_name': 'MetaDataCategory'},
-            'friendly_name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_extra_data': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
-        }
-    }
-
-    complete_apps = ['datastore']
+    operations = [
+        migrations.CreateModel(
+            name='Artifact',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('public_url', models.CharField(max_length=128, null=True)),
+                ('is_secure', models.BooleanField(default=False)),
+                ('secure_uuid', models.CharField(max_length=64, null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ArtifactCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('slug', models.SlugField(unique=True)),
+                ('friendly_name', models.CharField(max_length=64)),
+                ('installer_type', models.CharField(default=b'Not Installer', max_length=32, choices=[(b'Not Installer', b'Not Installer'), (b'Normal Installer', b'Normal Installer'), (b'iPhone Installer', b'iPhone Installer'), (b'Android Installer', b'Android Installer')])),
+                ('extension', models.CharField(max_length=16)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Build',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=64)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='MetadataCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('friendly_name', models.CharField(max_length=128)),
+                ('slug', models.SlugField(unique=True)),
+                ('required', models.BooleanField(default=False)),
+                ('datatype', models.CharField(default=b'string', max_length=16, choices=[(b'string', b'string'), (b'link', b'link'), (b'integer', b'integer'), (b'datetime', b'datetime')])),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='MetadataValue',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('string_value', models.CharField(max_length=256)),
+                ('category', models.ForeignKey(related_name=b'values', to='datastore.MetadataCategory')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Tag',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('value', models.CharField(max_length=256)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='build',
+            name='metadata',
+            field=models.ManyToManyField(related_name=b'builds', to='datastore.MetadataValue'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='build',
+            name='tags',
+            field=models.ManyToManyField(related_name=b'builds', to='datastore.Tag'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='artifact',
+            name='build',
+            field=models.ForeignKey(related_name=b'artifacts', to='datastore.Build'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='artifact',
+            name='category',
+            field=models.ForeignKey(related_name=b'instances', to='datastore.ArtifactCategory'),
+            preserve_default=True,
+        ),
+    ]

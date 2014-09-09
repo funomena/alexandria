@@ -39,8 +39,6 @@ class SeralizerTestCase(TestCase):
         self.assertIsInstance(serializer.data['values'][0], int)
 
 
-    # TODO: Turn this back on when MetadataValueSerializer is fixed
-    @expectedFailure
     def test_metadata_value_serializer_returns_correct_fields(self):
         serializer = MetadataValueSerializer(   MetadataValue.objects.get(pk=1),
                                                 context={'request': self.fake_req})
@@ -52,7 +50,7 @@ class SeralizerTestCase(TestCase):
         serializer = MetadataValueSerializer(   MetadataValue.objects.get(pk=1),
                                                 context={'request': self.fake_req})
         self.assertIn("category", serializer.data)
-        self.assertIsInstance(serializer.data['category'], dict)
+        self.assertIsInstance(serializer.data['category'], unicode)
 
 
     def test_metadata_value_serializer_returns_list_of_build_ids(self):
@@ -94,14 +92,14 @@ class SeralizerTestCase(TestCase):
         self.assertIsInstance(serializer.data['tags'], list)
         self.assertIsInstance(serializer.data['tags'][0], unicode)
 
-    # TODO: Turn this back on when we figure out how to serialize metadata into dictionaries
-    @expectedFailure 
-    def test_build_serializer_returns_dictionary_of_metadata(self):
+    def test_build_serializer_returns_list_of_metadata(self):
         serializer = BuildSerializer(   Build.objects.get(pk=1),
                                         context={'request': self.fake_req})
         self.assertIn("metadata", serializer.data)
-        self.assertIsInstance(serializer.data['metadata'], dict)
-        self.assertNotIn(" ", serializer.data['metadata'].keys()[0])
+        self.assertIsInstance(serializer.data['metadata'], list)
+        self.assertIsInstance(serializer.data['metadata'][0], dict)
+	self.assertIn("value", serializer.data['metadata'][0])
+	self.assertIn("category", serializer.data['metadata'][0])
 
 
     def test_build_serializer_returns_list_of_artifact_pks(self):
@@ -110,3 +108,5 @@ class SeralizerTestCase(TestCase):
         self.assertIn("artifacts", serializer.data)
         self.assertIsInstance(serializer.data['artifacts'], list)
         self.assertIsInstance(serializer.data['artifacts'][0], int)
+
+

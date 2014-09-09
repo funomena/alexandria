@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 DTYPE_STRING="string"
 DTYPE_LINK="link"
@@ -54,23 +55,23 @@ class MetadataValue(models.Model):
     """ The stored value of this data object in its true form """
     @property
     def value(self):
-        if( category.datatype == DTYPE_INT ):
-            return int(string_value)
-        elif( category.datatype == DTYPE_DATETIME ):
-            return datetime.strptime(string_value, "%Y-%m-%d %H:%M:%S")
+        if( self.category.datatype == DTYPE_INT ):
+            return int(self.string_value)
+        elif( self.category.datatype == DTYPE_DATETIME ):
+            return datetime.strptime(self.string_value, "%Y-%m-%d %H:%M:%S")
         else:
-            return string_value
+            return self.string_value
 
     @value.setter
     def value(self, v):
-        if( type(v) is int and category.datatype == DTYPE_INT ):
-            string_value = str(v)
-        elif( type(v) is datetime and category.datatype == DTYPE_DATETIME ):
-            string_value = v.strftime(v, "%Y-%m-%d %H:%M:%S")
-        elif( type(v) is str and category.datatype == DTYPE_STRING ):
-            string_value = v
-        elif( type(v) is str and "://" in v and category.datatype == DTYPE_LINK ):
-            string_value = v
+        if( type(v) is int and self.category.datatype == DTYPE_INT ):
+            self.string_value = str(v)
+        elif( type(v) is datetime and self.category.datatype == DTYPE_DATETIME ):
+            self.string_value = v.strftime(v, "%Y-%m-%d %H:%M:%S")
+        elif( type(v) is str and self.category.datatype == DTYPE_STRING ):
+            self.string_value = v
+        elif( type(v) is str and "://" in v and self.category.datatype == DTYPE_LINK ):
+            self.string_value = v
         else:
             raise Exception("Value is of invalid type")
 

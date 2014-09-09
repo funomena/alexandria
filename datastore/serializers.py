@@ -12,12 +12,11 @@ class MetadataCategorySerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
-# TODO: Make value field dynamic based on category type
-# TODO: Remove string_value
 class MetadataValueSerializer(serializers.ModelSerializer):
-    category = MetadataCategorySerializer()
+    category = serializers.SlugRelatedField(slug_field="slug")
     builds = serializers.PrimaryKeyRelatedField(many=True, read_only=True) 
-    string_value = serializers.CharField()
+    string_value = serializers.CharField(write_only=True)
+    value = serializers.Field(source='value')
 
     class Meta:
         model = MetadataValue
@@ -48,20 +47,20 @@ class BuildSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=64)
     tags = serializers.SlugRelatedField(many=True, slug_field='value')
     metadata = MetadataValueSerializer(many=True)
-    artifacts = serializers.PrimaryKeyRelatedField(many=True)    
-   
-    def restore_object(self, attrs, instance=None):
-        """
-        Given a dictionary of deserialized field values, either update
-        an existing model instance, or create a new model instance.
-        """
-        if instance is not None: #update things
-            return instance
-        else:
-            return Build(**attrs)
-        
+    artifacts = serializers.PrimaryKeyRelatedField(many=True)       
+
+    def validate_metadata(self, attrs, source):
+        metadata = attrs[source]
+        slugs = []
+        for m in metadata:
+            if m.category.slug in slugs:
+                raise serializers.ValidationError("Duplicate metadata: " + c.slug)
+            slugs.append(m.category.slug)
+        for c in MetadataCategory.objects.filter(required=True):
+            if not c.slug in slugs:
+                raise serializers.ValidationError("Missing required metadata: " + c.slug)
+        return attrs
+     
     class Meta:
         model = Build
         
-
-

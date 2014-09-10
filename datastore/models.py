@@ -43,6 +43,9 @@ class MetadataCategory(models.Model):
                     default="string",
                     max_length=16)
 
+    def __unicode__(self):
+        return unicode(self.friendly_name)
+
 
 """ A value of data that can be used to describe a build """
 class MetadataValue(models.Model):
@@ -75,11 +78,17 @@ class MetadataValue(models.Model):
         else:
             raise Exception("Value is of invalid type")
 
+    def __unicode__(self):
+        return unicode(self.string_value)
+
 
 """ A tag of arbitrary, category-less data """
 class Tag(models.Model):
     """ The value of this tag """
     value = models.CharField(max_length=256)
+
+    def __unicode__(self):
+        return unicode(self.value)
 
 
 class Build(models.Model):
@@ -91,6 +100,9 @@ class Build(models.Model):
 
     """ Any arbitrary data associated with this build """
     tags = models.ManyToManyField(Tag, related_name="builds")
+
+    def __unicode__(self):
+        return unicode(self.name)
 
 
 """ A type of artifact that can be downloaded. """
@@ -122,4 +134,4 @@ class Artifact(models.Model):
     verified = models.BooleanField(default=False)
 
     def __unicode__(self):
-        return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)
+        return u"%s (Build %s)" % (self.category.friendly_name, self.build.id)

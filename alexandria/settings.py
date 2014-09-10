@@ -97,3 +97,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.request",
 )
+
+AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+AWS_ACCESS_SECRET = os.environ.get("AWS_ACCESS_SECRET")
+S3_BUCKET = os.environ.get("S3_BUCKET")

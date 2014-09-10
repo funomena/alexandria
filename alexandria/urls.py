@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from datastore import views
-from datastore.creation import BuildNotification
+from datastore.creation import BuildNotification, ArtifactUpload
 from rest_framework.routers import DefaultRouter
 
 
@@ -18,4 +18,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
     url(r'build/$', BuildNotification.as_view()),
+    url(r'artifact/$', ArtifactUpload.as_view())
 )

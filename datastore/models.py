@@ -116,7 +116,7 @@ class ArtifactCategory(models.Model):
 class Artifact(models.Model):
     category = models.ForeignKey(ArtifactCategory, related_name='instances')
     build = models.ForeignKey(Build, related_name='artifacts')
-    s3_key = models.CharField(max_length=64, null=True)
+    s3_key = models.CharField(max_length=64, unique=True)
     file_size = models.IntegerField(default=0)
     md5_hash = models.CharField(max_length=32, null=True)
 

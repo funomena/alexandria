@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from datastore import views
-from datastore.creation import BuildNotification, ArtifactUpload
+from datastore.artifact_handlers import ArtifactUpload
+from datastore.build_handlers import BuildNotification
 from rest_framework.routers import DefaultRouter
 
 

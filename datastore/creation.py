@@ -43,7 +43,7 @@ class BuildNotification(APIView):
 
 class ArtifactUpload(APIView):
 
-    def post(self, request, format=None):
+    def put(self, request, format=None):
         data = request.DATA
         cat = data.get("category", "")
         if cat == "":
@@ -54,7 +54,11 @@ class ArtifactUpload(APIView):
         size = data.get("size", 0)
         if size == 0:
             return Response({'error': "No file size supplied"}, status=400)
-
+        
+        md5_hash = data.get("checksum", "")
+        if md5_hash == "":
+            return Response({'error': "No checksum supplied"}, status=400)
+    
         b_id = data.get("build", -1)
         if b_id == -1:
             return Response({'error': "No build id supplied"}, status=400)
@@ -67,12 +71,13 @@ class ArtifactUpload(APIView):
         if Artifact.objects.filter(category=category, build=build).exists():
             return Response({'error': cat + " already exists for build " + b_id}, status=400)
 
-        artifact = Artifact.objects.create(category=category, build=build, s3_key=key_name, file_size=size)
+        artifact = Artifact.objects.create( category=category, build=build, 
+                                            s3_key=key_name, file_size=size,
+                                            md5_hash=md5_hash)
         
         s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
         bucket = settings.S3_BUCKET
         url = s3.generate_url(300, 'PUT', bucket, key_name)
-        print url
         return Response({'url': url}) 
    
  
@@ -91,10 +96,6 @@ class ArtifactUpload(APIView):
         if not Build.objects.filter(pk=b_id).exists():
             return Response({'error': "Invalid build id: " + b_id}, status=400)        
 
-        user_md5 = data.get("md5", "")
-        if user_md5 == "":
-            return Response({'error': "No checksum supplied"}, status=400)
-
         category = ArtifactCategory.objects.get(slug=cat)
         build = Build.objects.get(pk=b_id)
         if not Artifact.objects.filter(category=category, build=build).exists():
@@ -106,12 +107,13 @@ class ArtifactUpload(APIView):
         bucket = settings.S3_BUCKET
         key_name = artifact.s3_key
         key = s3.get_bucket(bucket).get_key(key_name)
-        if key.md5 != user_md5:
-            return Response({'error': "Checksums do not match! User supplied: " + user_md5 + " Stored: " + key.md5},
-                                 status=400)
-        
-        artifact.md5_hash = key.md5
-        artifact.save()
-
+        md5 = key.etag.strip('"')
+        if md5 != artifact.md5_hash:
+            artifact.delete()
+            return Response({'error': "Checksums do not match! Supplied: " 
+                                    + artifact.md5_hash + " Stored: " + md5},
+                                    status=400)
+       
+        artifact.verified = True 
         serializer = ArtifactSerializer(artifact)
-        return Reponse(serializer.data)
+        return Response(serializer.data, status=201)

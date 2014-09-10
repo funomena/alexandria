@@ -118,7 +118,8 @@ class Artifact(models.Model):
     build = models.ForeignKey(Build, related_name='artifacts')
     s3_key = models.CharField(max_length=64, unique=True)
     file_size = models.IntegerField(default=0)
-    md5_hash = models.CharField(max_length=32, null=True)
+    md5_hash = models.CharField(max_length=32)
+    verified = models.BooleanField(default=False)
 
     def __unicode__(self):
         return u"%s (Build %s)" % (self.a_type.friendly_name, self.build.id)

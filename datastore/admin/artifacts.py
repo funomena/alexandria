@@ -3,9 +3,18 @@ from datastore.admin.forms import artifact, artifact_category
 from django.contrib import admin
 
 
-class ArtifactInline(admin.StackedInline):
+class ArtifactInline(admin.TabularInline):
     model = Artifact
-    extra = 0 
+    extra = 0
+    template = 'admin/artifact_inline.html'
+    def download(self, obj):
+        return "/download/" + str(obj.pk)
+
+    def name(self, obj):
+        return str(obj)
+
+    readonly_fields = ('name', 'download',)
+    fields = ('name', 'download',)
 
 
 @admin.register(ArtifactCategory)

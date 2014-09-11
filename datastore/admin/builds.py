@@ -1,34 +1,8 @@
 from datastore.models import Build, MetadataCategory, Tag
 from django.contrib import admin
 from django import forms
-
-
-class BuildForm(forms.ModelForm):
-    
-    def __init__(self, *args, **kwargs):
-        super(BuildForm, self).__init__(*args, **kwargs)
-        instance = kwargs.get('instance', None)
-        for c in MetadataCategory.objects.all():
-            r = c.required
-            name = c.friendly_name
-            if r:
-                name += " *"
-            field = forms.ModelChoiceField(label=name, queryset=c.values, required=r)
-            if not instance is None:
-                metas = instance.metadata.filter(category=c)
-                if metas.count() != 0:
-                    field.initial = metas[0]
-            self.fields["category%s" % c.pk] = field
-
-        for t in Tag.objects.all():
-            field = forms.BooleanField(required=False, label=t.value)
-            if not instance is None and instance.tags.filter(pk=t.pk).exists():
-                field.initial = True
-            self.fields["tag%s" % t.pk] = field
-
-    class Meta:
-        model = Build
-        fields = ('name',)
+from datastore.admin.forms.build_form import BuildForm
+from datastore.admin.artifacts import ArtifactInline
 
 
 def get_valid_artifact_count(build):
@@ -108,6 +82,7 @@ class BuildAdmin(admin.ModelAdmin):
     list_display = generate_list_display()
     list_filter = generate_list_filter()
     change_list_filter_template = "admin/filter_listing.html"
+    inlines = [ArtifactInline, ]
 
     def get_form(self, request, obj=None, **kwargs):
         return BuildForm
@@ -122,12 +97,12 @@ class BuildAdmin(admin.ModelAdmin):
 
         category_fields = ()
         for cat in MetadataCategory.objects.all():
-            category_fields += ("category%s" % cat.pk, )
+            category_fields += ("category_%s" % cat.pk, )
 
         tag_fields = ()
         for tag in Tag.objects.all():
-            tag_fields += ("tag%s"%tag.pk, )
+            tag_fields += ("tag_%s"%tag.pk, )
 
         fieldsets += (("Metadata", {'classes': (), 'fields': category_fields}),)
-        fieldsets += (("Tags", {'classes': ('grp-collapse grp-closed',), 'fields': tag_fields}),)
+        fieldsets += (("Tags", {'classes': ('grp-collapse grp-open',), 'fields': (tag_fields,)}),)
         return fieldsets

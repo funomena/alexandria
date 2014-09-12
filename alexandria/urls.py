@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from datastore import views
-from datastore.artifact_handlers import ArtifactUpload
+from datastore.artifact_handlers import ArtifactUpload, download_url_redirect
 from datastore.build_handlers import BuildNotification
 from rest_framework.routers import DefaultRouter
 
@@ -19,5 +19,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
     url(r'build/$', BuildNotification.as_view()),
-    url(r'artifact/$', ArtifactUpload.as_view())
+    url(r'artifact/$', ArtifactUpload.as_view()),
+    url(r'download/(?P<pk>[0-9]+)/$', download_url_redirect)
 )

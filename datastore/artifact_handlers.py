@@ -6,6 +6,7 @@ from datastore.models import ArtifactCategory, Artifact, Build
 from datastore.serializers import BuildSerializer, ArtifactSerializer
 import boto, uuid
 from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect
 
 
 class ArtifactUpload(APIView):
@@ -84,3 +85,13 @@ class ArtifactUpload(APIView):
         artifact.verified = True 
         serializer = ArtifactSerializer(artifact)
         return Response(serializer.data, status=201)
+
+
+def download_url_redirect(request, pk):
+    artifact = get_object_or_404(Artifact, pk=pk)
+    s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
+    bucket = settings.S3_BUCKET
+    key_name = artifact.s3_key
+    url = s3.generate_url(300, "GET", bucket, key_name)
+
+    return redirect(url)

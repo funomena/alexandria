@@ -82,27 +82,34 @@ class BuildAdmin(admin.ModelAdmin):
     list_display = generate_list_display()
     list_filter = generate_list_filter()
     change_list_filter_template = "admin/filter_listing.html"
-    inlines = [ArtifactInline, ]
+    inlines = [ArtifactInline,]
+    filter_horizontal = ('tags','metadata',)
+
+    
+    def get_queryset(self, request):
+        query = super(BuildAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return query
+        return query.filter(allowed_groups__in = request.user.groups.values('pk'))
+
 
     def get_form(self, request, obj=None, **kwargs):
-        return BuildForm
+        if request.user.is_superuser:
+            return super(BuildAdmin, self).get_form(request, obj, **kwargs)
+        elif request.user.groups.filter(pk__in=obj.allowed_groups.values('pk')).exists():
+            return super(BuildAdmin, self).get_form(request, obj, **kwargs)
 
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = (
-                ('', {
-                    'fields': ('name',),
-                    }
-                ),
-            )
 
-        category_fields = ()
-        for cat in MetadataCategory.objects.all():
-            category_fields += ("category_%s" % cat.pk, )
+    def get_readonly_fields(self, request, obj=None, **kwargs):
+        if request.user.is_superuser:
+            return ()
+        else:
+            return ('metadata',)
 
-        tag_fields = ()
-        for tag in Tag.objects.all():
-            tag_fields += ("tag_%s"%tag.pk, )
 
-        fieldsets += (("Metadata", {'classes': (), 'fields': category_fields}),)
-        fieldsets += (("Tags", {'classes': ('grp-collapse grp-open',), 'fields': (tag_fields,)}),)
-        return fieldsets
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('name', 'metadata', 'tags', 'allowed_groups',)
+        else:
+            return ('name','metadata','tags',)
+       

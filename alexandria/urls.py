@@ -16,9 +16,9 @@ router.register(r'artifact-categories', views.ArtifactCategoryViewSet)
 
 urlpatterns = patterns('',
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include(router.urls)),
-    url(r'build/$', BuildNotification.as_view()),
-    url(r'artifact/$', ArtifactUpload.as_view()),
+    url(r'^', include(admin.site.urls)),
+    url(r'^api/', include(router.urls)),
+    url(r'api/build/$', BuildNotification.as_view()),
+    url(r'api/artifact/$', ArtifactUpload.as_view()),
     url(r'download/(?P<pk>[0-9]+)/$', download_url_redirect)
 )

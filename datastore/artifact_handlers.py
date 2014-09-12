@@ -7,9 +7,15 @@ from datastore.serializers import BuildSerializer, ArtifactSerializer
 import boto, uuid
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 class ArtifactUpload(APIView):
+
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
 
     def put(self, request, format=None):
         data = request.DATA
@@ -88,7 +94,13 @@ class ArtifactUpload(APIView):
 
 
 def download_url_redirect(request, pk):
+    if request.user is None:
+        raise PermissionDenied
+
     artifact = get_object_or_404(Artifact, pk=pk)
+    if not artifact.build.allowed_groups.filter(pk__in=request.user.groups.values('pk')).exists():
+        raise PermissionDenied
+
     s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
     bucket = settings.S3_BUCKET
     key_name = artifact.s3_key

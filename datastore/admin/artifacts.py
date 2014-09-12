@@ -6,15 +6,11 @@ from django.contrib import admin
 class ArtifactInline(admin.TabularInline):
     model = Artifact
     extra = 0
-    template = 'admin/artifact_inline.html'
     def download(self, obj):
-        return "/download/" + str(obj.pk)
+        return '<a class="grp-button" href="/download/%s">Download</a>' % obj.pk
 
-    def name(self, obj):
-        return str(obj)
-
-    readonly_fields = ('name', 'download', 'file_size', 'md5_hash', 'verified',)
-    fields = ('name', 'download', 'file_size', 'md5_hash', 'verified',)
+    readonly_fields = ('__str__', 'download', 'file_size', 'md5_hash', 'verified',)
+    fields = ('__str__', 'download', 'file_size', 'md5_hash', 'verified',)
 
 
 @admin.register(ArtifactCategory)
@@ -32,5 +28,20 @@ class ArtifactCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Artifact)
 class ArtifactAdmin(admin.ModelAdmin):
-    
-    pass
+    def download(self, obj):
+        return '<a class="grp-button" href="/download/%s">Download</a>' % obj.pk
+
+    download.short_description = ""
+
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ('__str__', 'download')
+        else:
+            return ('__str__', 'download', 'file_size', 'md5_hash', 'verified',)
+
+
+    def get_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return (('__str__', 'download'), 's3_key', ('file_size', 'md5_hash', 'verified', ), )
+        else:
+            return (('__str__', 'download'), ('file_size', 'md5_hash', 'verified', ), )

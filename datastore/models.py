@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import Group
 
 DTYPE_STRING="string"
 DTYPE_LINK="link"
@@ -79,7 +80,7 @@ class MetadataValue(models.Model):
             raise Exception("Value is of invalid type")
 
     def __unicode__(self):
-        return unicode(self.string_value)
+        return unicode(self.category.friendly_name + " | " + self.string_value)
 
 
 """ A tag of arbitrary, category-less data """
@@ -100,6 +101,9 @@ class Build(models.Model):
 
     """ Any arbitrary data associated with this build """
     tags = models.ManyToManyField(Tag, related_name="builds")
+
+    """ Groups of users that can access this build """
+    allowed_groups = models.ManyToManyField(Group)
 
     def __unicode__(self):
         return unicode(self.name)

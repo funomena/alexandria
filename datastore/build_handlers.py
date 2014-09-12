@@ -4,11 +4,15 @@ from rest_framework import authentication, permissions
 from datastore.models import MetadataCategory, MetadataValue, Tag
 from datastore.models import ArtifactCategory, Artifact, Build
 from datastore.serializers import BuildSerializer, ArtifactSerializer
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 class BuildNotification(APIView):
 
     def post(self, request, format=None):
+        authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication)
+        permission_classes = (IsAuthenticated,)
         name = request.DATA.get("name", "")
         metadata = request.DATA.get("metadata", {})
         tags = request.DATA.get("tags", [])

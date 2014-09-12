@@ -63,4 +63,4 @@ class BuildSerializer(serializers.ModelSerializer):
      
     class Meta:
         model = Build
-        
+        exclude = ('allowed_groups', )

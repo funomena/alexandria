@@ -13,7 +13,8 @@ class BuildForm(forms.ModelForm):
             name = c.friendly_name
             if r:
                 name += " *"
-            field = forms.ModelChoiceField(label=name, queryset=c.values, required=r)
+
+            field = forms.CharField(label=name, readonly=True)
             if not instance is None:
                 metas = instance.metadata.filter(category=c)
                 if metas.count() != 0:

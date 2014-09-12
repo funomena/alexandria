@@ -7,29 +7,32 @@ from django.conf import settings
 
 
 @receiver(pre_delete, sender=Build)
-def cleanup_orphaned_metadata(sender, instance, using):
-    for meta in instance.metadata:
-        if len(meta.builds) <= 1:
+def cleanup_orphaned_metadata(sender, **kwargs):
+    for meta in kwargs['instance'].metadata.all():
+        if meta.builds.count() <= 1:
             meta.delete()
 
 
 @receiver(pre_delete, sender=Build)
-def cleanup_orphaned_tags(sender, instance, using):
-    for tag in instance.tags:
-        if len(tag.builds) <= 1:
+def cleanup_orphaned_tags(sender, **kwargs):
+    for tag in kwargs['instance'].tags.all():
+        if tag.builds.count() <= 1:
             tag.delete()
 
 
 @receiver(post_delete, sender=Build)
-def cleanup_orphaned_artifacts(sender, instance, using):
-    for art in build.artifacts:
+def cleanup_orphaned_artifacts(sender, **kwargs):
+    for art in kwargs['instance'].artifacts.all():
         art.delete()
 
 
 @receiver(post_delete, sender=Artifact)
-def cleanup_stored_files(sender, instance, using):
+def cleanup_stored_files(sender, **kwargs):
     s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
     bucket = s3.get_bucket(settings.S3_BUCKET)
-    key = bucket.get_key(instance.key_name)
+    key = bucket.get_key(kwargs['instance'].s3_key)
+    if key is None:
+        print "Key doesn't exist"
+        return
     key.delete()
 

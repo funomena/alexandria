@@ -13,8 +13,8 @@ class ArtifactInline(admin.TabularInline):
     def name(self, obj):
         return str(obj)
 
-    readonly_fields = ('name', 'download',)
-    fields = ('name', 'download',)
+    readonly_fields = ('name', 'download', 'file_size', 'md5_hash', 'verified',)
+    fields = ('name', 'download', 'file_size', 'md5_hash', 'verified',)
 
 
 @admin.register(ArtifactCategory)

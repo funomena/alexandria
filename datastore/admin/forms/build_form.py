@@ -29,6 +29,8 @@ class BuildForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         cleaned = self.clean()
+        commit = kwargs['commit']
+        self.instance.save()
         for name, value in cleaned.iteritems():
             if "category" in name:
                 cat_id = int(name.split("_")[1])
@@ -49,7 +51,7 @@ class BuildForm(forms.ModelForm):
                     self.instance.tags.remove(self.instance.tags.get(pk=tag_id))
                 elif not has_tag and value == True:
                     self.instance.tags.add(Tag.objects.get(pk=tag_id))
-        return super(BuildForm, self).save(commit=kwargs['commit'])
+        return super(BuildForm, self).save(commit=commit)
     
     class Meta:
         model = Build

@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic import TemplateView
 from django.contrib import admin
 from datastore import views
 from datastore.artifact_handlers import ArtifactUpload, download_url_redirect
@@ -15,10 +16,12 @@ router.register(r'artifact-categories', views.ArtifactCategoryViewSet)
 
 
 urlpatterns = patterns('',
+    url(r'^$', views.handle_index, name='index'),
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^', include(admin.site.urls)),
+    url(r'^navigate/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
-    url(r'api/build/$', BuildNotification.as_view()),
-    url(r'api/artifact/$', ArtifactUpload.as_view()),
-    url(r'download/(?P<pk>[0-9]+)/$', download_url_redirect)
+    url(r'^api/build/$', BuildNotification.as_view()),
+    url(r'^api/artifact/$', ArtifactUpload.as_view()),
+    url(r'^download/(?P<pk>[0-9]+)/$', download_url_redirect),
+    url(r'^accounts/', include('registration.backends.simple.urls'))
 )

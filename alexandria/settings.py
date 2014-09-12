@@ -30,14 +30,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'grappelli',
     'datastore',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'registration',
     'rest_framework',
     'rest_framework.authtoken'
 )
@@ -112,3 +113,5 @@ AWS_ACCESS_SECRET = os.environ.get("AWS_ACCESS_SECRET")
 S3_BUCKET = os.environ.get("S3_BUCKET")
 
 GRAPPELLI_ADMIN_TITLE="Alexandria Build Archive"
+
+ACCOUNT_ACTIVATION_DAYS = 3

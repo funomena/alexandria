@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from datastore.models import MetadataCategory, MetadataValue, Tag
-from datastore.models import ArtifactCategory, Artifact, Build
+from datastore.models import ArtifactCategory, Artifact, Build, AutoAccessRule
 from datastore.serializers import BuildSerializer, ArtifactSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -35,6 +35,13 @@ class BuildNotification(APIView):
             cat = MetadataCategory.objects.get(slug=c)
             meta, created = MetadataValue.objects.get_or_create(category=cat, string_value=v)
             b.metadata.add(meta)
+
+        m = AutoAccessRule.objects.filter(required_metadata__pk__in=b.metadata.values('pk'))
+        t = AutoAccessRule.objects.filter(required_tags__pk__in=b.tags.values('pk'))
+        all_access = AutoAccessRule.objects.filter(all_access_override=True)
+        all_rules = (m | t) | all_access
+        for rule in all_rules:
+            b.allowed_groups.add(rule.groups)
 
         b.save()
         serializer = BuildSerializer(b)

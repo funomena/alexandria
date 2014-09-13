@@ -100,10 +100,10 @@ class Build(models.Model):
     metadata = models.ManyToManyField(MetadataValue, related_name="builds")
 
     """ Any arbitrary data associated with this build """
-    tags = models.ManyToManyField(Tag, related_name="builds")
+    tags = models.ManyToManyField(Tag, related_name="builds", blank=True)
 
     """ Groups of users that can access this build """
-    allowed_groups = models.ManyToManyField(Group)
+    allowed_groups = models.ManyToManyField(Group, blank=True)
 
     def __unicode__(self):
         return unicode(self.name)
@@ -139,3 +139,27 @@ class Artifact(models.Model):
 
     def __unicode__(self):
         return u"%s (Build %s)" % (self.category.friendly_name, self.build.id)
+
+
+""" Rules for automatically allowing group access to a build """
+class AutoAccessRule(models.Model):
+    """ If a build has any of these metadata... """
+    required_metadata = models.ManyToManyField(MetadataValue, blank=True)
+
+    """ ...or any of these tags... """
+    required_tags = models.ManyToManyField(Tag, blank=True)
+
+    """ ...give these groups access when it's created. """
+    groups = models.ManyToManyField(Group)
+
+    """ Or if this flag is set, add grant access to all builds. """
+    all_access_override = models.BooleanField(default=False)
+
+
+""" Rules to keep builds """
+class KeepRule(models.Model):
+    """ Python code to keep a build """
+    keep_code = models.TextField()
+
+    """ Honor this rule? """
+    active = models.BooleanField(default=False)

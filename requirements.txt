@@ -5,7 +5,7 @@ dj-database-url==0.3.0
 django-filter==0.7
 django-grappelli==2.6.1
 django-guardian==1.2.4
-django-registration==1.0
+-e git+git://github.com/macropin/django-registration.git@master#egg=django-registration
 djangorestframework==2.4.2
 gunicorn==19.1.1
 psycopg2==2.5.4

@@ -1,1 +1,1 @@
-web: python manage.py collectstatic --noinput; gunicorn_django --bind=0.0.0.0:$PORT alexandria/settings/heroku.py
+web: python manage.py collectstatic --noinput; gunicorn alexandria.wsgi:application --bind=0.0.0.0:$PORT alexandria/settings.py

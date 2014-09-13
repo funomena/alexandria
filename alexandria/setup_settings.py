@@ -16,6 +16,4 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'datastore',
     'registration',
-    'rest_framework',
-    'rest_framework.authtoken'
 ) 

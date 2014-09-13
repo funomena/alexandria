@@ -1,6 +1,7 @@
 Django==1.7
 argparse==1.2.1
 boto==2.32.1
+dj-database-url==0.3.0
 django-filter==0.7
 django-grappelli==2.6.1
 django-guardian==1.2.4

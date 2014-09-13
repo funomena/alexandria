@@ -1,9 +1,16 @@
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import pre_delete, post_delete, post_save
 from django.dispatch import receiver
-from datastore.models import MetadataCategory, MetadataValue, Tag
-from datastore.models import ArtifactCategory, Artifact, Build
+from datastore.models import MetadataCategory, MetadataValue, Tag, KeepRule
+from datastore.models import ArtifactCategory, Artifact, Build, AutoAccessRule
 import boto
 from django.conf import settings
+
+
+@receiver(post_save, sender=Build)
+def execute_keep_rules(sender, instance, created, raw, using, update_fields, **kwargs):
+    if KeepRule.objects.filter(active=True).exists():
+        rule = KeepRule.objects.filter(active=True).latest('pk')
+        exec(rule.keep_code)
 
 
 @receiver(pre_delete, sender=Build)

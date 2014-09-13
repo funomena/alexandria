@@ -14,4 +14,8 @@ from alexandria.settings import *
 
 INSTALLED_APPS = (
     'datastore',
+    'django.contrib.auth',
+    'registration',
+    'rest_framework',
+    'rest_framework.authtoken'
 ) 

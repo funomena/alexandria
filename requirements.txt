@@ -2,12 +2,14 @@ Django==1.7
 argparse==1.2.1
 boto==2.32.1
 dj-database-url==0.3.0
+dj-static==0.0.6
 django-filter==0.7
 django-grappelli==2.6.1
 django-guardian==1.2.4
--e git+git://github.com/macropin/django-registration.git@master#egg=django-registration
+-e git://github.com/macropin/django-registration.git@19c4cb643a95040ba22ba945cd2e3b9136a2addb#egg=django_registration-master
 djangorestframework==2.4.2
 gunicorn==19.1.1
 psycopg2==2.5.4
 six==1.7.3
+static3==0.5.1
 wsgiref==0.1.2

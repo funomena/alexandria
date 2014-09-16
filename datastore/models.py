@@ -163,3 +163,6 @@ class KeepRule(models.Model):
 
     """ Honor this rule? """
     active = models.BooleanField(default=False)
+
+    """ The last execution result of this field """
+    last_execution = models.TextField(default="NOT RUN")

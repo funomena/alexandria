@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_delete, post_delete, post_save
+from django.db.models.signals import pre_delete, post_delete, post_save, pre_save
 from django.dispatch import receiver
 from datastore.models import MetadataCategory, MetadataValue, Tag, KeepRule
 from datastore.models import ArtifactCategory, Artifact, Build, AutoAccessRule
@@ -10,20 +10,26 @@ from django.conf import settings
 def execute_keep_rules(sender, instance, created, raw, using, update_fields, **kwargs):
     if KeepRule.objects.filter(active=True).exists():
         rule = KeepRule.objects.filter(active=True).latest('pk')
-        exec(rule.keep_code)
+        try:
+            exec(rule.keep_code)
+        except Exception as e:
+            rule.last_execution = str(e)
+        else:
+            rule.last_execution = "OK"
+        rule.save()
 
 
 @receiver(pre_delete, sender=Build)
 def cleanup_orphaned_metadata(sender, **kwargs):
     for meta in kwargs['instance'].metadata.all():
-        if meta.builds.count() <= 1:
+        if meta.builds.count() < 1:
             meta.delete()
 
 
 @receiver(pre_delete, sender=Build)
 def cleanup_orphaned_tags(sender, **kwargs):
     for tag in kwargs['instance'].tags.all():
-        if tag.builds.count() <= 1:
+        if tag.builds.count() < 1:
             tag.delete()
 
 

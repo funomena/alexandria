@@ -11,21 +11,33 @@ def get_valid_artifact_count(build):
 get_valid_artifact_count.short_description = "Artifact Count"
 
 
-def meta_display_function(category):
+def meta_display_function(request):
     def display_function(build):
-        m = build.metadata.get(category=category)
-        return m.value
+        metadata = build.metadata.order_by('category__pk').values("string_value", "category__friendly_name")
+        links = []
+        for meta in metadata:
+            link = meta["category__friendly_name"] + ": "
+            link += "<a href='%s?q=%s'>%s</a>" % \
+                    (request.path, meta["string_value"], meta["string_value"])
+            links.append(link)
+        return ", ".join(links)
 
-    display_function.short_description = category.friendly_name
+    display_function.short_description = "Metadata"
+    display_function.allow_tags = True
     return display_function
 
 
-def tag_display_function(tag):
+def tag_display_function(request):
     def display_function(build):
-        return build.tags.filter(pk=tag.pk).exists()
+        tag_values = build.tags.order_by('pk').values_list("value")
+        links = []
+        for tag_val in tag_values:
+            links.append("<a href='%s?q=%s'>%s</a>" % 
+                            (request.path, tag_val[0], tag_val[0]))
+        return ", ".join(links)
 
-    display_function.boolean = True
-    display_function.short_description = tag.value
+    display_function.short_description = "Tags"
+    display_function.allow_tags = True
     return display_function
 
 
@@ -68,15 +80,6 @@ def generate_metadata_filter(metadata_category):
 @admin.register(Build)
 class BuildAdmin(admin.ModelAdmin):
 
-    def get_list_display(self, request):
-        all_meta_categories = MetadataCategory.objects.all()
-        display = ('name', get_valid_artifact_count, )
-        for cat in all_meta_categories:
-            display = display + (meta_display_function(cat), )
-        for tag in Tag.objects.all():
-            display = display + (tag_display_function(tag), )
-        return display
-
     def get_list_filter(self, request):
         all_meta_categories = MetadataCategory.objects.all()
         l_filter = ('name', )
@@ -86,12 +89,18 @@ class BuildAdmin(admin.ModelAdmin):
         for tag in all_tags:
             l_filter = l_filter + (generate_tag_filter(tag), )
         return l_filter
+    
+    def get_list_display(self, request):
+        display = ('name', get_valid_artifact_count, meta_display_function(request), tag_display_function(request))
+        return display
+
 
     change_list_filter_template = "admin/filter_listing.html"
     inlines = [ArtifactInline,]
     filter_horizontal = ('tags','metadata',)
+    search_fields = ['metadata__string_value', 'tags__value',]
+   
 
-    
     def get_queryset(self, request):
         query = Build.objects.all().prefetch_related('tags', 'metadata', 'metadata__category')
         if request.user.is_superuser:

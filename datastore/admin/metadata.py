@@ -1,11 +1,11 @@
-from datastore.models import MetadataCategory, MetadataValue
+from datastore.models import MetadataCategory, MetadataValue, Build
 from django.contrib import admin
 
 
 @admin.register(MetadataValue)
 class MetadataValueAdmin(admin.ModelAdmin):
-    pass
-
+    list_display = ('value', 'category',)
+    list_filter = ('category', )
 
 
 @admin.register(MetadataCategory)

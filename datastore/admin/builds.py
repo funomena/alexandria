@@ -20,6 +20,15 @@ def meta_display_function(category):
     return display_function
 
 
+def tag_display_function(tag):
+    def display_function(build):
+        return build.tags.filter(pk=tag.pk).exists()
+
+    display_function.boolean = True
+    display_function.short_description = tag.value
+    return display_function
+
+
 def generate_tag_filter(tag):
     class TagListFilter(admin.SimpleListFilter):
         title = tag.value
@@ -62,14 +71,16 @@ def generate_metadata_filter(metadata_category):
 @admin.register(Build)
 class BuildAdmin(admin.ModelAdmin):
 
-    def generate_list_display():
+    def get_list_display(self, request):
         all_meta_categories = MetadataCategory.objects.all()
         display = ('name', get_valid_artifact_count, )
         for cat in all_meta_categories:
             display = display + (meta_display_function(cat), )
+        for tag in Tag.objects.all():
+            display = display + (tag_display_function(tag), )
         return display
 
-    def generate_list_filter():
+    def get_list_filter(self, request):
         all_meta_categories = MetadataCategory.objects.all()
         l_filter = ('name', )
         for cat in all_meta_categories:
@@ -79,15 +90,13 @@ class BuildAdmin(admin.ModelAdmin):
             l_filter = l_filter + (generate_tag_filter(tag), )
         return l_filter
 
-    list_display = generate_list_display()
-    list_filter = generate_list_filter()
     change_list_filter_template = "admin/filter_listing.html"
     inlines = [ArtifactInline,]
     filter_horizontal = ('tags','metadata',)
 
     
     def get_queryset(self, request):
-        query = super(BuildAdmin, self).get_queryset(request)
+        query = Build.objects.all().prefetch_related('tags', 'metadata', 'metadata__category')
         if request.user.is_superuser:
             return query
         return query.filter(allowed_groups__in = request.user.groups.values('pk'))

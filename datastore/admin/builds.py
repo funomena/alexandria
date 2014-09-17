@@ -59,12 +59,9 @@ def generate_metadata_filter(metadata_category):
             for val in metadata_category.values.all():
                 yield (val.value, val.value)
         def queryset(self, request, queryset):
-            try:
-               queriedMetadata = MetaData.objects.get(value=self.value(),category=metadata_category)
-            except:
-                pass
-            else:
-                return queryset.filter(metadata__in=[queriedMetadata.pk])
+            if self.value() is None:
+                return queryset
+            return queryset.filter(metadata__value=self.value(), metadata__category=metadata_category)
     return MetadataListFilter
 
 

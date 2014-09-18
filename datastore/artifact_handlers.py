@@ -51,7 +51,7 @@ class ArtifactUpload(APIView):
         
         s3 = boto.connect_s3(settings.AWS_ACCESS_KEY, settings.AWS_ACCESS_SECRET)
         bucket = settings.S3_BUCKET
-        url = s3.generate_url(300, 'PUT', bucket, key_name)
+        url = s3.generate_url(300, 'PUT', bucket, key_name, force_http=True)
         return Response({'url': url}) 
    
  
@@ -88,7 +88,8 @@ class ArtifactUpload(APIView):
                                     + artifact.md5_hash + " Stored: " + md5},
                                     status=400)
        
-        artifact.verified = True 
+        artifact.verified = True
+        artifact.save()
         serializer = ArtifactSerializer(artifact)
         return Response(serializer.data, status=201)
 

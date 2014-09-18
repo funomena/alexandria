@@ -36,12 +36,16 @@ class BuildNotification(APIView):
             meta, created = MetadataValue.objects.get_or_create(category=cat, string_value=v)
             b.metadata.add(meta)
 
-        m = AutoAccessRule.objects.filter(required_metadata__pk__in=b.metadata.values('pk'))
-        t = AutoAccessRule.objects.filter(required_tags__pk__in=b.tags.values('pk'))
+        m = AutoAccessRule.objects.filter(
+                required_metadata__pk__in=b.metadata.values_list('pk', flat=True)
+                ) 
+        t = AutoAccessRule.objects.filter(
+                required_tags__pk__in=b.tags.values_list('pk', flat=True)
+                )
         all_access = AutoAccessRule.objects.filter(all_access_override=True)
         all_rules = (m | t) | all_access
-        for rule in all_rules:
-            b.allowed_groups.add(rule.groups)
+        all_groups = all_rules.values_list("groups__pk", flat=True)
+        b.allowed_groups.add(*all_groups)
 
         b.save()
         serializer = BuildSerializer(b)

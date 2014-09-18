@@ -55,7 +55,13 @@ class MetadataValue(models.Model):
 
     """ The stored string value of this data object """
     string_value = models.CharField(max_length=256)
-    
+   
+
+    def clean(self):
+        if category.datatype == DTYPE_DATETIME:
+            self.string_value = self.string_value.split(".")[0]
+
+
     """ The stored value of this data object in its true form """
     @property
     def value(self):
